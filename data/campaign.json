@@ -61,7 +61,7 @@
       "best_day": "8 Jul · +54",
       "profile": {"visits": 292, "bio_taps": 10, "address_taps": 2},
       "split": {"views": [97308, 0, 97308], "interactions": [1108, 0, 1108], "reached": [30560, null, 30560], "visits": [292, 0, 292]},
-      "cities": [["Tunis", "23.6%"], ["Sfax", "13.8%"], ["Sousse", "7.7%"], ["Ariana", "5.9%"], ["Nabeul", "4.0%"], ["Hammamet", "2.3%"], ["Djerba – Houmt Souk", "1.4%"]]
+      "cities": [["Tunis", "23.6%"], ["Sfax", "13.8%"], ["Sousse", "7.7%"], ["Ariana", "5.9%"], ["Nabeul", "4.0%"], ["Hammamet", "2.3%"], ["Djerba", "1.4%"]]
     },
     "aug": {
       "label": "August 2026", "short": "August", "start": "2026-08-01", "end": "2026-08-31", "range": "Aug 1 – Aug 31 2026",
@@ -76,7 +76,7 @@
       "best_day": "15 Aug · +71",
       "profile": {"visits": 548, "bio_taps": 19, "address_taps": 3},
       "split": {"views": [52563, 116969, 169532], "interactions": [538, 2780, 3318], "reached": [15956, null, 50993], "visits": [146, 402, 548]},
-      "cities": [["Tunis", "23.4%"], ["Sfax", "13.6%"], ["Sousse", "7.8%"], ["Ariana", "5.8%"], ["Nabeul", "4.0%"], ["Hammamet", "2.6%"], ["Djerba – Houmt Souk", "1.7%"]]
+      "cities": [["Tunis", "23.4%"], ["Sfax", "13.6%"], ["Sousse", "7.8%"], ["Ariana", "5.8%"], ["Nabeul", "4.0%"], ["Hammamet", "2.6%"], ["Djerba", "1.7%"]]
     },
     "win": {
       "label": "Whole launch window", "short": "Window", "start": "2026-07-05", "end": "2026-09-01", "range": "Jul 5 – Sep 1 2026",
@@ -91,7 +91,7 @@
       "best_day": "15 Aug · +71",
       "profile": {"visits": 847, "bio_taps": 30, "address_taps": 5},
       "split": {"views": [152111, 116987, 269098], "interactions": [1672, 2780, 4452], "reached": [40127, null, 69914], "visits": [445, 402, 847]},
-      "cities": [["Tunis", "23.4%"], ["Sfax", "13.6%"], ["Sousse", "7.8%"], ["Ariana", "5.8%"], ["Nabeul", "4.0%"], ["Hammamet", "2.6%"], ["Djerba – Houmt Souk", "1.7%"]]
+      "cities": [["Tunis", "23.4%"], ["Sfax", "13.6%"], ["Sousse", "7.8%"], ["Ariana", "5.8%"], ["Nabeul", "4.0%"], ["Hammamet", "2.6%"], ["Djerba", "1.7%"]]
     }
   },
   "audience": {
