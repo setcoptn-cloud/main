@@ -207,3 +207,23 @@ ol.rules { padding-left: 0; list-style: none; counter-reset: r; }
 ol.rules li { font-size: 12.8px; line-height: 1.5; margin-bottom: 9px; color: #2b2e33; }
 ol.rules li b { color: var(--page-ink); }
 .ok { color: #2f7d4f; font-weight: 700; }
+
+/* Monthly recap cards (light story screens) */
+.phone.recap { background: #fff; color: #111; text-align: center; }
+.recap .status { padding: 0 18px 0 22px; }
+.recap .progress { display: flex; gap: 4px; padding: 0 12px; margin-top: 2px; }
+.recap .progress i { flex: 1; height: 2.5px; border-radius: 2px; background: #dcdde0; }
+.recap .progress i.on { background: #262626; }
+.recap .simline { color: var(--sim); margin-top: 6px; }
+.recap .sun { width: 128px; height: 128px; border-radius: 50%; background: #fff3d6; margin: 18px auto 0; display: flex; align-items: center; justify-content: center; }
+.recap .sun div { width: 84px; height: 84px; border-radius: 50%; background: #ffcc55; border: 3px solid #f2a33a; }
+.rc-title { font-size: 28px; font-weight: 500; letter-spacing: -0.01em; margin-top: 14px; }
+.rc-sub { font-size: 12.5px; color: #737373; margin-top: 4px; }
+.rc-block { margin-top: 28px; padding: 0 28px; }
+.rc-big { font-size: 44px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.rc-label { font-size: 15px; font-weight: 700; margin-top: 8px; }
+.rc-note { font-size: 12px; color: #737373; margin-top: 5px; line-height: 1.45; }
+.rc-note .up { color: #2f8a4f; font-weight: 700; }
+.recap .tag { vertical-align: 2px; }
+.recap .home { background: #111; }
+.recap-note { position: absolute; left: 40px; right: 40px; bottom: 40px; font-size: 12px; line-height: 1.5; color: var(--page-muted); }
