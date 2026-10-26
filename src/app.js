@@ -21,6 +21,8 @@
   }
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const shortDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); return MON[m - 1] + " " + d; };
+  // the selector shows the range rather than Instagram's "Custom" so each screen states its period
+  const rangeLabel = (key) => shortDate(PERIODS[key].start) + " – " + shortDate(PERIODS[key].end);
   const pctNum = (s) => parseFloat(s);
   const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -132,7 +134,7 @@
         ${x.format === "Reel" ? `<span class="ti">${I.reel(15)}</span>` : x.format === "Carousel" ? `<span class="ti">${I.carousel(15)}</span>` : ""}
         <span class="tv">${I.eye}${compact(x.views)}</span></div>`).join("");
     return `
-      <div class="row sec-first"><span class="h-big">All content</span>${picker("Custom")}</div>
+      <div class="row sec-first"><span class="h-big">All content</span>${picker(rangeLabel(key))}</div>
       <div class="cards">
         <div class="card on"><div class="lbl">Views</div><div class="val">${fmt(p.views)}</div></div>
         <div class="card"><div class="lbl">Net followers</div><div class="val">+${fmt(p.net_followers)}</div></div>
@@ -170,7 +172,7 @@
         <div class="rv"><b>${compact(x.views, true)}</b><small>Views</small></div>
       </div>`).join("");
     return `
-      <div class="row sec-first"><span class="h-big dd">All content ${I.chev}</span>${picker("Custom")}</div>
+      <div class="row sec-first"><span class="h-big dd">All content ${I.chev}</span>${picker(rangeLabel(key))}</div>
       <div class="chips"><span class="chip">Latest</span><span class="chip on">Views</span><span class="chip">Viewers</span><span class="chip">Follows</span><span class="chip">Likes</span><span class="chip">Comments</span></div>
       <div class="list">${rows}</div>`;
   }
@@ -184,7 +186,7 @@
     const loc = locMode === "cities" ? p.cities : A.countries;
     const act = Object.entries(A.active_times_relative);
     return `
-      <div class="row sec-first"><span class="h-big">Followers</span>${picker("Custom")}</div>
+      <div class="row sec-first"><span class="h-big">Followers</span>${picker(rangeLabel(key))}</div>
       <div class="fol-num">${fmt(p.followers_end)}</div>
       <div class="fol-delta"><b>${p.growth_pct}</b> since ${p.since}</div>
       <div class="sec">${secTitle("Follower growth over time", false)}</div>
@@ -240,7 +242,8 @@
       wrap.appendChild(fig);
     });
     const title = kind === "overview" ? "Overview and content" : "Audience";
-    return page(`${p.label} · ${title}`, p.range + (kind === "audience" ? " · audience data estimated" : ""), wrap);
+    const note = kind === "audience" ? " · audience data estimated" : key === "jul" ? " · the 15 Aug Reel (107K) is counted in August" : "";
+    return page(`${p.label} · ${title}`, p.range + note, wrap);
   }
 
   // ---------- cover ----------
@@ -274,7 +277,7 @@
           <p><span class="tag o">O</span><b>Observed:</b> ${C.observed}</p>
           <p><span class="tag e">E</span><b>Estimated:</b> ${C.estimated}</p>
           <p><b>Scope:</b> as in Instagram, the screens cover the whole account, so the three other-range posts (13, 15 and 21 Aug) appear in top content. The split between sun care and other ranges is given in the table opposite.</p>
-          <p><b>Reading the screens:</b> the date selector reads “Custom”, as Instagram shows it for a custom range; each range is stated under every screen and on the chart axis. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
+          <p><b>Reading the screens:</b> the date selector shows the period of each screen (Instagram itself would read “Custom” for a custom range); the range is also stated under every screen and on the chart axis. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
         </div>
       </div>
       <div class="panel">

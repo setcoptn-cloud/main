@@ -157,6 +157,24 @@ for p in D["posts"]:
     cumulative[p["id"]] = run
     check(f"cumulative {p['id']}", run[-1], p["views"])
 
+# Accounts reached (rule 4 with the v3 correction): the viral Reel's non-follower
+# reach (75%) is counted in full instead of going through the overlap factor.
+def reach_in(pid, ds):
+    p = next(x for x in D["posts"] if x["id"] == pid)
+    day0, days = dt.date.fromisoformat(p["date"]), set(ds)
+    return sum(x for k, x in enumerate(alloc(p["reach"], DECAY)) if day0 + dt.timedelta(k) in days)
+
+
+for key, p in D["periods"].items():
+    ds = in_period(key)
+    overlap = 0.55 * (0.85 if key == "win" else 1)
+    extra = round((1 - overlap) * 0.75 * reach_in("O2", ds))
+    check(f"{key} accounts reached (v3 correction)", p["viewers"], p["viewers_v2"] + extra)
+    check(f"{key} reached in split table", p["split"]["reached"][2], p["viewers"])
+    biggest = max(reach_in(x["id"], ds) for x in D["posts"])
+    if p["viewers"] < biggest:
+        errors.append(f"{key}: accounts reached {p['viewers']} < one post's reach {biggest}")
+
 if errors:
     raise SystemExit("Inconsistent data:\n  " + "\n  ".join(errors))
 
