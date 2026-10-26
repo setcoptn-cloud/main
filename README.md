@@ -11,6 +11,7 @@ and every screen says so. This is not an Instagram or Meta export.
 | `Nihel_Sun_Insights_v3_mockup.pdf` | 8 vector pages, 1680 × 1000 px: cover and reconciliation, then Overview/Content and Audience for July, August and the whole window, then method and publications table |
 | `pages/page-NN.png` | Each page at 2× |
 | `screens/<period>-<tab>-<n>.png` | Each phone screen alone at 3× (1125 × 2436), ready to place as a thesis figure |
+| `Nihel_Meta_Business_Suite_mockup.pdf` | 8 pages: Meta Business Suite desktop Insights (Instagram, launch window) — content overview, top content formats, results, all content, post detail, audience; `pages/business-NN.png` and `screens/bs-*.png` |
 | `Nihel_Sun_Monthly_Recap_v3.pdf` | 1-page monthly recap (July, August, launch window), same data; `pages/recap-01.png` and `screens/recap-*.png` |
 
 ## Sources

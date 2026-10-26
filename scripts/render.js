@@ -9,6 +9,7 @@ const OUT = path.join(ROOT, "output");
 const DOCS = [
   { html: "index.html", pdf: "Nihel_Sun_Insights_v3_mockup.pdf", pages: "pages", prefix: "page" },
   { html: "recap.html", pdf: "Nihel_Sun_Monthly_Recap_v3.pdf", pages: "pages", prefix: "recap" },
+  { html: "business.html", pdf: "Nihel_Meta_Business_Suite_mockup.pdf", pages: "pages", prefix: "business" },
 ];
 
 (async () => {
@@ -21,7 +22,8 @@ const DOCS = [
     await page.goto("file://" + path.join(ROOT, "src", html));
     await page.waitForSelector("body[data-ready='1']");
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load"); // "networkidle" is unreliable on file:// pages
+    await page.waitForTimeout(500);
     return page;
   };
 
@@ -35,7 +37,7 @@ const DOCS = [
       await pages[i].screenshot({ path: path.join(OUT, doc.pages, `${doc.prefix}-${String(i + 1).padStart(2, "0")}.png`) });
     }
     const p3 = await load(doc.html, 3);
-    const phones = await p3.$$(".phone");
+    const phones = await p3.$$(".phone, .bs");
     for (const ph of phones) {
       await ph.screenshot({ path: path.join(OUT, "screens", `${await ph.getAttribute("data-name")}.png`) });
     }
