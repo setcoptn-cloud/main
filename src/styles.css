@@ -199,12 +199,13 @@ table.t tr.sub td:first-child { padding-left: 20px; }
 table.t tr.tot td { font-weight: 700; }
 table.t tr.hl td { background: #fff8e1; }
 table.t td.l { text-align: left; }
-table.t.pubs td { padding-top: 2px; padding-bottom: 2px; }
+table.t.pubs td { padding-top: 1px; padding-bottom: 1px; }
+table.t.compact td { padding-top: 3px; padding-bottom: 3px; font-size: 12px; }
 table.t td.th-cell { padding: 1px 6px; }
-table.t img { width: 17px; height: 22px; object-fit: cover; border-radius: 2px; display: block; }
+table.t img { width: 15px; height: 20px; object-fit: cover; border-radius: 2px; display: block; }
 .fine { font-size: 11.5px; color: var(--page-muted); line-height: 1.5; margin-top: 10px; }
 ol.rules { padding-left: 0; list-style: none; counter-reset: r; }
-ol.rules li { font-size: 12.8px; line-height: 1.5; margin-bottom: 9px; color: #2b2e33; }
+ol.rules li { font-size: 12px; line-height: 1.42; margin-bottom: 6px; color: #2b2e33; }
 ol.rules li b { color: var(--page-ink); }
 .ok { color: #2f7d4f; font-weight: 700; }
 

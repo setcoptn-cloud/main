@@ -5,6 +5,7 @@
   const C = DATA.campaign, DAILY = DATA.daily, F = DATA.formats;
   const W = C.periods.win, A = C.audience;
   const POST = Object.fromEntries(C.posts.map((p) => [p.id, p]));
+  const TOP_SUN = [...C.posts].filter((p) => p.range === "sun").sort((a, b) => b.views - a.views)[0];
   const FOOT = "@laboratoires_nihel · reconstruction for an MSc thesis (A. Belhassen, 2026) · not a screenshot of Meta Business Suite";
   const BADGE = "Illustrative mockup — simulated data — not an official Meta export";
 
@@ -236,7 +237,7 @@
       <div class="legend-bs"><span><i style="background:var(--bs-line-light)"></i>This post's views</span></div>`;
     return `
       <div class="bcard pd-head">${ic("back", 18)}<div class="th" style="background-image:url('${thumb(id)}')"></div>
-        <div class="t"><b>${esc(p.title)}</b><small>${IG(13)}Reel · Published on: ${dow(p.date)} ${md(p.date)} · laboratoires_nihel</small></div>
+        <div class="t"><b>${esc(p.title)}</b><small>${IG(13)}Reel · Published on: ${dow(p.date)} ${md(p.date)} · laboratoires_nihel${p.collab ? ` in collaboration with ${esc(p.collab)}` : ""}</small></div>
         <span class="btn" style="padding:0 8px">${ic("dots", 16)}</span><span class="btn primary">Boost</span></div>
       <div class="pd-grid">
         <div>
@@ -324,7 +325,7 @@
           <tr><td>3</td><td class="l">Content › Overview (scrolled)</td><td class="l">Top content by views; top content formats</td></tr>
           <tr><td>4–5</td><td class="l">Results</td><td class="l">Views, reach, interactions, link clicks, visits, follows</td></tr>
           <tr><td>6</td><td class="l">Content › Content</td><td class="l">All content table, sorted by views</td></tr>
-          <tr><td>7</td><td class="l">Post detail</td><td class="l">${esc(POST.S03.title)} (top sun care post)</td></tr>
+          <tr><td>7</td><td class="l">Post detail</td><td class="l">${esc(TOP_SUN.title)} (top sun care post)</td></tr>
           <tr><td>8</td><td class="l">Audience</td><td class="l">Followers, age, gender, cities, countries</td></tr></table></div>
       </div>
       <div class="panel">
@@ -357,7 +358,7 @@
   shot("bs-results", "Results", "<b>4</b> · Results · top of page", screen("results", results()));
   shot("bs-results-2", "Results", "<b>5</b> · Results · scrolled", screen("results", results(), ["res-row2", 0]));
   shot("bs-all-content", "Content", "<b>6</b> · Content › Content · 12 of 27 publications, sorted by views", screen("c-content", allContent()));
-  shot("bs-post-s03", "Post detail", `<b>7</b> · Post detail · ${esc(POST.S03.title)} · views over its first 30 days`, screen("c-content", postDetail("S03")));
+  shot("bs-post-detail", "Post detail", `<b>7</b> · Post detail · ${esc(TOP_SUN.title)} · views over its first 30 days`, screen("c-content", postDetail(TOP_SUN.id)));
   shot("bs-audience", "Audience", "<b>8</b> · Audience · demographics of followers on 1 Sep 2026 (estimated)", screen("audience", audience(), null, true, "Lifetime"));
   document.body.dataset.ready = "1";
 })();

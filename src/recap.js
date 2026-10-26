@@ -34,8 +34,8 @@
   const split = (p) => `Sun care ${k1(p.split.views[0])} + other ranges ${k1(p.split.views[1])}`;
   const cards = [
     card(0, "July 2026", "Account recap · 5–31 July", [
-      [k1(J.views), "Views", "E", `Reels ${k1(J.views_by_type.reels)} + posts ${k1(J.views_by_type.posts)} + stories ${k1(J.views_by_type.stories)}`],
-      [J.follower_share.non_followers, "Views from non-followers", "E", `${J.follower_share.followers} from followers · no other-range post in July`],
+      [k1(J.views), "Views", "E", `${split(J)} (25 Jul Reel)`],
+      [J.follower_share.non_followers, "Views from non-followers", "E", `${J.follower_share.followers} from followers · three Reels-tab Reels: 75% non-followers`],
       [k1(J.followers_end), "Followers on 31 July", "E", `<b class="up">+${fmt(J.net_followers)}</b> since 4 July · ${fmt(J.followers_end)} followers`],
     ]),
     card(1, "August 2026", "Account recap · 1–31 August", [

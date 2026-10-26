@@ -27,6 +27,11 @@ MAPPING = {
 }
 
 
+# Reels tab screenshot (2 columns): Reels hidden from the profile grid.
+# Boxes stop above the view-count overlay at the bottom of each tile.
+REELS_TAB = {"R3": (2, 6, 279, 400), "R2": (285, 6, 558, 400), "R1": (2, 450, 279, 836)}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, (cols, rows, w, h) in SHEETS.items():
@@ -39,6 +44,9 @@ def main():
             # skip the top 32 px, where the feed grid draws its own Reel/carousel badge
             tile = im.crop((x + 2, y + 32, x + w - 2, y + h - 2))
             tile.save(OUT / f"{pid}.jpg", quality=90)
+    tab = Image.open(SRC / "reels_tab.png").convert("RGB")
+    for pid, box in REELS_TAB.items():
+        tab.crop(box).save(OUT / f"{pid}.jpg", quality=90)
     print("thumbnails:", len(list(OUT.glob("*.jpg"))))
 
 

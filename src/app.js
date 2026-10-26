@@ -260,7 +260,7 @@
         <div class="eyebrow">Appendix · illustrative mockup · simulated data · version 3</div>
         <div class="cover-title">The Nihel Sun care launch,<br>shown as Instagram Insights screens</div>
         <p class="lede">July, August and the whole launch window (5 July – 1 September 2026), redrawn from the reference
-        Instagram Insights screenshots. All figures are taken from the version 2 simulation, and the
+        Instagram Insights screenshots. Figures: the version 2 simulation plus three Reels that only show in the Reels tab (5, 20 and 25 July), added with the same rules; the
         day-by-day charts come from the same deterministic model, so every total is the exact sum of its parts.</p>
         <div class="kpis">
           <div class="kpi"><div class="l">Views · July</div><div class="v">${fmt(J.views)}</div></div>
@@ -276,7 +276,7 @@
           <h2>What is observed and what is estimated</h2>
           <p><span class="tag o">O</span><b>Observed:</b> ${C.observed}</p>
           <p><span class="tag e">E</span><b>Estimated:</b> ${C.estimated}</p>
-          <p><b>Scope:</b> as in Instagram, the screens cover the whole account, so the three other-range posts (13, 15 and 21 Aug) appear in top content. The split between sun care and other ranges is given in the table opposite.</p>
+          <p><b>Scope:</b> as in Instagram, the screens cover the whole account, so the other-range publications (25 Jul Fête de la République Reel; 13, 15 and 21 Aug) appear in top content. Reels hidden from the profile grid still count, as in Instagram. The split between sun care and other ranges is given in the table opposite.</p>
           <p><b>Reading the screens:</b> the date selector shows the period of each screen (Instagram itself would read “Custom” for a custom range); the range is also stated under every screen and on the chart axis. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
         </div>
       </div>
@@ -303,7 +303,7 @@
           <tr class="sub"><td></td>${"<td>Sun</td><td>Other</td><td>Account</td>".repeat(3)}</tr>
           ${splitRow("Views", "views")}${splitRow("Interactions", "interactions")}${splitRow("Accounts reached", "reached")}${splitRow("Profile visits", "visits")}
         </table>
-        <p class="fine">Campaign check: 24 sun care posts and 3 other-range posts; all sums on this page and on the screens are re-computed by <code>scripts/model.py</code>.</p>
+        <p class="fine">Campaign check: ${C.posts.filter((x) => x.range === "sun").length} sun care and ${C.posts.filter((x) => x.range === "other").length} other-range publications, ${C.posts.filter((x) => !x.grid).length} of them only in the Reels tab; all sums on this page and on the screens are re-computed by <code>scripts/model.py</code>.</p>
       </div>
     </div>`);
     return page("Nihel Sun · Instagram Insights mockup", "July & August 2026", body);
@@ -314,24 +314,23 @@
     const rules = C.rules.map(([h, t], i) => `<li><b>${i + 1}. ${h}.</b> ${t}</li>`).join("");
     const weeks = C.weekly_followers.map(([w, lc, g, d, f], i) =>
       `<tr class="${i >= 5 && i <= 7 ? "hl" : ""}"><td>${w}</td><td>${fmt(lc)}</td><td>+${g}</td><td>${d}</td><td>${fmt(f)}</td></tr>`).join("");
-    const pubs = C.posts.map((x) => {
+    const pubs = [...C.posts].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)).map((x) => {
       const [, m, d] = x.date.split("-");
-      return `<tr class="${x.id.startsWith("O") || x.id === "S07" ? "hl" : ""}"><td class="th-cell"><img src="${thumb(x.id)}" alt=""></td><td class="l">${x.id}</td><td class="l">${d}/${m}</td><td class="l">${x.format}</td><td>${fmt(x.views)}</td><td>${fmt(x.reach)}</td><td>${fmt(x.likes)}</td><td>${x.comments}</td><td>${x.shares}</td><td>${x.saves}</td><td>${x.visits}</td><td>${x.er}</td></tr>`;
+      return `<tr class="${x.range === "other" || !x.grid || x.id === "S07" ? "hl" : ""}"><td class="th-cell"><img src="${thumb(x.id)}" alt=""></td><td class="l">${x.id}</td><td class="l">${d}/${m}</td><td class="l">${x.format}</td><td>${fmt(x.views)}</td><td>${fmt(x.reach)}</td><td>${fmt(x.likes)}</td><td>${x.comments}</td><td>${x.shares}</td><td>${x.saves}</td><td>${x.visits}</td><td>${x.er}</td></tr>`;
     }).join("");
     const body = el(`<div class="sheet" style="grid-template-columns: 1fr 1.25fr; padding-top:22px; padding-bottom:22px">
       <div class="panel">
         <h2>Rules (applied identically to every period)</h2>
         <ol class="rules">${rules}</ol>
         <h3>Follower model, week by week</h3>
-        <table class="t"><tr><th>Week</th><th>Likes + comm.</th><th>Gain</th><th>/day</th><th>Followers</th></tr>${weeks}</table>
-        <p class="fine">The 15 Aug Reel's likes arrive over several days, so its effect spreads over 9–22 Aug; the 21 Aug body mist post adds to 16–29 Aug (highlighted).
-        Charts on the screens plot these daily values: views per day, and net followers per day (“Overall”). Top gridline = highest day, as in Instagram.</p>
+        <table class="t compact"><tr><th>Week</th><th>Likes + comm.</th><th>Gain</th><th>/day</th><th>Followers</th></tr>${weeks}</table>
+        <p class="fine">The 15 Aug Reel's likes spread over 9–22 Aug and the 21 Aug post over 16–29 Aug (highlighted). Charts plot these daily values; top gridline = highest day, as in Instagram.</p>
       </div>
       <div class="panel" style="padding-bottom:14px">
-        <h2>Publications (lifetime) · 24 sun care + 3 other ranges</h2>
-        <table class="t pubs" style="font-size:11.5px"><tr><th></th><th style="text-align:left">ID</th><th style="text-align:left">Date</th><th style="text-align:left">Format</th><th>Views</th><th>Reach</th><th>Likes</th><th>Com.</th><th>Shares</th><th>Saves</th><th>Visits</th><th>ER</th></tr>${pubs}</table>
-        <p class="fine">O1 = 13 Aug Fête de la femme post, O2 = 15 Aug black-and-white Reel, O3 = 21 Aug body mist post (11 comments from the campaign total; 1 is visible on Instagram). S07 = corrected 20 July view count.
-        ER = (likes + comments + shares + saves) ÷ reach. Thumbnails are cropped from the account's public grid, matched by date order and format.</p>
+        <h2>Publications (lifetime) · ${C.posts.filter((x) => x.range === "sun").length} sun care + ${C.posts.filter((x) => x.range === "other").length} other ranges</h2>
+        <table class="t pubs" style="font-size:11px"><tr><th></th><th style="text-align:left">ID</th><th style="text-align:left">Date</th><th style="text-align:left">Format</th><th>Views</th><th>Reach</th><th>Likes</th><th>Com.</th><th>Shares</th><th>Saves</th><th>Visits</th><th>ER</th></tr>${pubs}</table>
+        <p class="fine">R1–R3 = Reels only in the Reels tab (views, likes, comments observed; rest by rule 8). O1 = Fête de la femme, O2 = black-and-white Reel,
+        O3 = body mist (11 comments from the campaign total). S07 = corrected 20 July views. ER = (likes + comments + shares + saves) ÷ reach.</p>
       </div>
     </div>`);
     return page("Method and checks", "how every number is produced", body);
