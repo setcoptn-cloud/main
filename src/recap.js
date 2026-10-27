@@ -56,7 +56,7 @@
     <div class="screens" style="bottom:78px;gap:56px">${cards.map((c, i) => `<figure class="shot">${c}<figcaption><b>${i + 1}</b> · ${caps[i]}</figcaption></figure>`).join("")}</div>
     <div class="recap-note">Views = all views counted inside the period (Reels + posts + stories), as on the Insights screens; sun care and other ranges are split as in the reconciliation table.
       Followers = deterministic model from ${fmt(C.followers_start.value)} on 4 July (+52.8 a day + 1 per 50 likes and comments); observed anchors: 15 Apr (28.2K), 14 Oct (38.8K), 23 Oct (40.4K).
-      ${tag("O")} observed · ${tag("E")} estimated. The 107K-view Reel of 15 August is unrelated to sun care. Not a screenshot of Instagram.</div>
+      ${tag("O")} observed · ${tag("E")} estimated. The 107K-view Reel of 15 August is unrelated to sun care. A post's lifetime views can exceed what falls inside a period: the 25 Jul Reel has ${fmt(C.posts.find((x) => x.id === "R3").views)} views, ${k1(J.split.views[1])} of them by 31 July. Not a screenshot of Instagram.</div>
     <footer class="page-foot"><span>${FOOT}</span><span>Recap</span></footer></section>`);
   document.body.appendChild(pg);
   pg.querySelectorAll(".phone").forEach((ph, i) => { ph.dataset.name = ["recap-jul", "recap-aug", "recap-win"][i]; });

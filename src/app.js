@@ -225,7 +225,7 @@
     const p = PERIODS[key];
     const wrap = el(`<div class="screens"></div>`);
     const shots = kind === "overview"
-      ? [["Overview", overview(key), null, "Overview · top"],
+      ? [["Overview", overview(key), null, "Overview · chart = views per day"],
          ["Overview", overview(key), ["sec-top", 176], "Overview · scrolled to top content"],
          ["Overview", overview(key), ["sec-int", 118], "Overview · scrolled to profile activity"],
          ["Content", content(key), null, "Content · sorted by views"]]
@@ -244,6 +244,12 @@
     const title = kind === "overview" ? "Overview and content" : "Audience";
     const note = kind === "audience" ? " · audience data estimated" : key === "jul" ? " · the 15 Aug Reel (107K) is counted in August" : "";
     return page(`${p.label} · ${title}`, p.range + note, wrap);
+  }
+
+  function peakLabel(key) {
+    const { dates, values } = slice(key, "views"), i = values.indexOf(Math.max(...values));
+    const [, m, d] = dates[i].split("-").map(Number);
+    return `${d} ${["January", "February", "March", "April", "May", "June", "July", "August", "September"][m - 1]} (${fmt(values[i])} views)`;
   }
 
   // ---------- cover ----------
@@ -282,7 +288,7 @@
       </div>
       <div class="panel">
         <h2>Reconciliation by period</h2>
-        <table class="t">
+        <table class="t tight">
           <tr><th>Metric</th><th>July</th><th>August</th><th>1 Sep*</th><th>Window</th></tr>
           ${r("Views", (p) => p.views, "tot")}
           ${r("Reels", vt("reels"), "sub")}${r("Posts", vt("posts"), "sub")}${r("Stories", vt("stories"), "sub")}
@@ -303,6 +309,7 @@
           <tr class="sub"><td></td>${"<td>Sun</td><td>Other</td><td>Account</td>".repeat(3)}</tr>
           ${splitRow("Views", "views")}${splitRow("Interactions", "interactions")}${splitRow("Accounts reached", "reached")}${splitRow("Profile visits", "visits")}
         </table>
+        <p class="fine"><b>Views per day vs per post:</b> the line chart shows views per day; each publication's views are spread over its first 30 days, 40% on day 1. The 5 July creator Reel (${fmt(POSTS.R1.views)} lifetime) adds ${fmt(DATA.cumulative.R1[0])} on 5 July; the July peak is ${peakLabel("jul")}. Top content and content lists show lifetime views.</p>
         <p class="fine">Campaign check: ${C.posts.filter((x) => x.range === "sun").length} sun care and ${C.posts.filter((x) => x.range === "other").length} other-range publications, ${C.posts.filter((x) => !x.grid).length} of them only in the Reels tab; all sums on this page and on the screens are re-computed by <code>scripts/model.py</code>.</p>
       </div>
     </div>`);

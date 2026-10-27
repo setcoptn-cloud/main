@@ -26,6 +26,9 @@ and every screen says so. This is not an Instagram or Meta export.
 python3 scripts/crop_thumbs.py   # assets/thumbs/*.jpg
 python3 scripts/model.py         # derives daily series, checks every total, writes src/data.js
 node scripts/render.js           # PDF + PNGs into output/
+node scripts/audit.js            # reads every chart back from the pages and checks it against the data
 ```
 
 `model.py` first checks that the rules give back every v2 total from the 27 v2 publications, then computes the v3 figures from all 30; it stops on any mismatch. It checks views by type, likes, comments, net followers, followers at end, growth %, best day, the weekly follower table and every ER.
+
+`audit.js` converts every drawn line point back to a number (from its position between the gridlines) and compares it with the data, checks each axis and date label, every bar length, and that no panel or footnote is cut off. It fails if anything is off.
