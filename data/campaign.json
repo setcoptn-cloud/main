@@ -458,9 +458,10 @@
    "saves": 107,
    "visits": 355,
    "er": "4.56%",
-   "title": "Black-and-white couple Reel",
+   "title": "",
    "range": "other",
-   "grid": true
+   "grid": true,
+   "label": "15 Aug black-and-white Reel"
   },
   {
    "id": "O3",
@@ -489,12 +490,13 @@
    "grid": false,
    "added": "v3",
    "collab": "rihab.labidi.5243",
-   "title": "@rihab.labidi.5243 × laboratoires_nihel – creator content (SUN 50+)",
+   "title": "@rihab.labidi.5243 @laboratoires_nihel",
    "reach": null,
    "shares": null,
    "saves": null,
    "visits": null,
-   "er": null
+   "er": null,
+   "label": "5 Jul creator collab Reel"
   },
   {
    "id": "R2",
@@ -507,12 +509,13 @@
    "grid": false,
    "added": "v3",
    "collab": "drest.tn",
-   "title": "Votre routine solaire en un seul pack",
+   "title": "@Drest.tn @laboratoires_nihel",
    "reach": null,
    "shares": null,
    "saves": null,
    "visits": null,
-   "er": null
+   "er": null,
+   "label": "20 Jul Drest.tn collab Reel"
   },
   {
    "id": "R3",
@@ -530,7 +533,8 @@
    "shares": null,
    "saves": null,
    "visits": null,
-   "er": null
+   "er": null,
+   "label": "25 Jul Fête de la République Reel"
   }
  ],
  "stories": {
@@ -1039,5 +1043,7 @@
   "win": {
    "picker": "Custom"
   }
- }
+ },
+ "captured": "2026-09-15",
+ "captured_note": "Screens captured on 15 September 2026: post ages in the content lists (2w, 9w…) are counted from that day. The 15 Aug Reel has no caption, so Instagram shows only its age; Business Suite shows the account name."
 }

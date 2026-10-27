@@ -7,6 +7,7 @@
   // daily series start on 2 July (Instagram's 30 days for July); these screens show the window only
   const WI = DAILY.days.indexOf(W.start);
   const DW = { days: DAILY.days.slice(WI), views: DAILY.views.slice(WI), follows: DAILY.follows.slice(WI) };
+  C.posts.forEach((p) => { if (!p.title) p.title = "@laboratoires_nihel"; });
   const POST = Object.fromEntries(C.posts.map((p) => [p.id, p]));
   const TOP_SUN = [...C.posts].filter((p) => p.range === "sun").sort((a, b) => b.views - a.views)[0];
   const FOOT = "@laboratoires_nihel · reconstruction for an MSc thesis (A. Belhassen, 2026) · not a screenshot of Meta Business Suite";
@@ -313,7 +314,7 @@
     const v = DW.views, i = v.indexOf(Math.max(...v)), day = DW.days[i];
     const lead = C.posts.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
     return `<br><b>Reading the chart:</b> one point = the views of one day; the ${v.length} days add up to ${fmt(W.views)}. Busiest day ${md(day)}: ${fmt(v[i])}, ` +
-      `of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of “${esc(lead.title)}” (${fmt(lead.views)} views over 30 days, 40% on day 1).`;
+      `of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of the ${esc(lead.label || lead.title)} (${fmt(lead.views)} views over 30 days, 40% on day 1).`;
   }
 
   function shot(name, title, caption, scr) {
@@ -368,7 +369,7 @@
   shot("bs-content-overview-2", "Content overview", "<b>3</b> · Content › Overview · scrolled to top content and formats", screen("c-overview", contentOverview(), ["co-top", 0]));
   shot("bs-results", "Results", "<b>4</b> · Results · top of page" + chartNote(), screen("results", results()));
   shot("bs-results-2", "Results", "<b>5</b> · Results · scrolled", screen("results", results(), ["res-row2", 0]));
-  shot("bs-all-content", "Content", "<b>6</b> · Content › Content · 12 of 27 publications, sorted by views", screen("c-content", allContent()));
+  shot("bs-all-content", "Content", `<b>6</b> · Content › Content · 12 of ${C.posts.length} publications, sorted by views`, screen("c-content", allContent()));
   shot("bs-post-detail", "Post detail", `<b>7</b> · Post detail · ${esc(TOP_SUN.title)} · views over its first 30 days`, screen("c-content", postDetail(TOP_SUN.id)));
   shot("bs-audience", "Audience", "<b>8</b> · Audience · demographics of followers on 1 Sep 2026 (estimated)", screen("audience", audience(), null, true, "Lifetime"));
   document.body.dataset.ready = "1";

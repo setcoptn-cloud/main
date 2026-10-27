@@ -37,7 +37,7 @@
     chev: S(14, '<path d="m6 9 6 6 6-6"/>', 'stroke-width="2.6"'),
     heart: (s = 12) => S(s, '<path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.5 3.8 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.2 0 5.3 3 4.2 6.2C19.5 15.4 12 20 12 20Z"/>', 'stroke-width="2.2"'),
     comment: (s = 12) => S(s, '<path d="M3.5 12a8.5 8.5 0 0 0 12.6 7.4l4.4 1.1-1.1-4.2A8.5 8.5 0 1 0 3.5 12Z"/>', 'stroke-width="2"'),
-    send: (s = 12) => S(s, '<path d="M3 4.5h18L12.6 20.5l-2.3-7.6Z"/><path d="M10.3 12.9 21 4.5"/>', 'stroke-width="2"'),
+    send: (s = 12) => S(s, '<path d="M3.5 4.5h17L12 20.5Z"/><path d="M20.5 4.5 10 12.6"/>', 'stroke-width="2"'),
     save: (s = 12) => S(s, '<path d="M18.5 21 12 15.5 5.5 21V3.5h13V21Z"/>', 'stroke-width="2.2"'),
     repost: (s = 12) => S(s, '<path d="M16.5 3 20 6.5 16.5 10"/><path d="M4 12v-1.5a4 4 0 0 1 4-4h12"/><path d="M7.5 21 4 17.5 7.5 14"/><path d="M20 12v1.5a4 4 0 0 1-4 4H4"/>', 'stroke-width="2"'),
     eye: S(13, '<path d="M1.8 12S5.5 5 12 5s10.2 7 10.2 7-3.7 7-10.2 7S1.8 12 1.8 12Z"/><circle cx="12" cy="12" r="3.2"/>', 'stroke-width="2.4"'),
@@ -159,9 +159,9 @@
   }
 
   // ---------- Content tab ----------
-  // Instagram lists post age relative to the day the screen is viewed: here the day after the period ends
-  function ago(iso, end) {
-    const days = Math.round((Date.parse(end) - Date.parse(iso)) / 864e5) + 1;
+  // Instagram lists post age relative to the day the screen is viewed (C.captured, 15 Sep)
+  function ago(iso) {
+    const days = Math.round((Date.parse(C.captured) - Date.parse(iso)) / 864e5);
     return days < 7 ? `${days}d` : `${Math.floor(days / 7)}w`;
   }
 
@@ -170,8 +170,8 @@
       <div class="li">
         <div class="th" style="background-image:url('${thumb(x.id)}')">${x.format === "Reel" ? I.reel(11) : x.format === "Carousel" ? I.carousel(11) : ""}</div>
         <div class="tx">
-          <div class="cap"><span class="c">${esc(x.title || "")}</span><span class="d">${ago(x.date, PERIODS[key].end)}</span></div>
-          <div class="mx"><span>${I.heart(15)}${fmt(x.likes)}</span><span>${I.comment(15)}${fmt(x.comments)}</span><span>${I.repost(15)}0</span><span>${I.send(15)}${fmt(x.shares)}</span></div>
+          <div class="cap">${x.title ? `<span class="c">${esc(x.title)}</span><span class="d">${ago(x.date)}</span>` : `<span class="d" style="margin-left:0">${ago(x.date)}</span>`}</div>
+          <div class="mx"><span>${I.heart(14)}${fmt(x.likes)}</span><span>${I.comment(14)}${fmt(x.comments)}</span><span>${I.repost(14)}0</span><span>${I.send(14)}${fmt(x.shares)}</span></div>
         </div>
         <div class="rv"><b>${compact(x.views, true)}</b><small>Views</small></div>
       </div>`).join("");
@@ -263,7 +263,7 @@
     const dayTxt = `${d} ${MON[m - 1]}`;
     return `<b>Reading the chart:</b> one point = the views of one day (all content, stories included); the ${values.length} days add up to ${fmt(p.views)}. ` +
       `Busiest day ${dayTxt}: ${fmt(values[i])} views` +
-      (lead ? `, of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of “${esc(lead.title)}”. Its ${fmt(lead.views)} views spread over 30 days (40% on day 1), so no single day reaches a post's total, as in Instagram.` : ".");
+      (lead ? `, of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of the ${esc(lead.label || lead.title)}. Its ${fmt(lead.views)} views spread over 30 days (40% on day 1), so no single day reaches a post's total, as in Instagram.` : ".");
   }
 
   function peakLabel(key) {
@@ -303,7 +303,7 @@
           <p><span class="tag o">O</span><b>Observed:</b> ${C.observed}</p>
           <p><span class="tag e">E</span><b>Estimated:</b> ${C.estimated}</p>
           <p><b>Scope:</b> as in Instagram, the screens cover the whole account, so the other-range publications (25 Jul Fête de la République Reel; 13, 15 and 21 Aug) appear in top content. Reels hidden from the profile grid still count, as in Instagram. The split between sun care and other ranges is given in the table opposite.</p>
-          <p><b>Reading the screens:</b> the date selector reads as in Instagram: “30 days” for July (the last 30 days on 1 August: 2–31 July) and “Custom” for August and the window; each range is also stated under every screen and on the chart axis. Content lists show post age as on the day after the period (1w, 3d…). Reposts are not in the data and show 0. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
+          <p><b>Reading the screens:</b> the date selector reads as in Instagram: “30 days” for July (the last 30 days on 1 August: 2–31 July) and “Custom” for August and the window; each range is also stated under every screen and on the chart axis. Screens captured on 15 September: content lists show post age from that day (2w, 9w…); the 15 Aug Reel has no caption, so only its age shows. Reposts are not in the data and show 0. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
         </div>
       </div>
       <div class="panel">

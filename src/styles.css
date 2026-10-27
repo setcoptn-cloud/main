@@ -158,8 +158,8 @@ body {
 .li .cap { display: flex; font-size: 15px; font-weight: 500; line-height: 18px; white-space: nowrap; }
 .li .cap .c { overflow: hidden; text-overflow: ellipsis; }
 .li .cap .d { color: var(--ig-text-2); font-weight: 500; font-size: 13.5px; margin-left: 6px; flex: 0 0 auto; }
-.li .mx { display: flex; gap: 14px; margin-top: 6px; font-size: 14.5px; line-height: 18px; color: #d0d2d6; }
-.li .mx span { display: inline-flex; align-items: center; gap: 4px; }
+.li .mx { display: flex; gap: 12px; margin-top: 6px; font-size: 13.5px; line-height: 17px; color: #c4c6cc; }
+.li .mx span { display: inline-flex; align-items: center; gap: 3px; }
 .li .rv { text-align: right; margin-left: 10px; }
 .li .rv b { display: block; font-size: 17.5px; font-weight: 800; line-height: 22px; }
 .li .rv small { font-size: 14.5px; color: var(--ig-text-2); }
