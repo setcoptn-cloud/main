@@ -122,6 +122,30 @@ for f in ("Reel", "Photo"):
                   "interactions": sum(sum(daily(m, sel).values()) for m in ("likes", "comments", "shares"))}
 check("formats add up", formats["Reel"]["views"] + formats["Photo"]["views"] == tot["views"])
 
+# ---------- periods: same dates as the Instagram mockup ----------
+# July = Instagram's "30 days" (2-31 Jul): no Facebook publication before 5 Jul, so 2-4 Jul add nothing.
+d_lk, d_cm, d_sh = daily("likes"), daily("comments"), daily("shares")
+reels_d, photos_d = daily("views", lambda i: i["format"] == "Reel"), daily("views", lambda i: i["format"] == "Photo")
+
+
+def period(a, b, k):
+    ds = [d for d in DAYS if a <= d <= b]
+    pv = {"views": sum(views[d] for d in ds), "views_by_type": {"reels": sum(reels_d[d] for d in ds), "photos": sum(photos_d[d] for d in ds)},
+          "viewers": round(k * sum(reach_d[d] for d in ds)),
+          "interactions_detail": {"likes": sum(d_lk[d] for d in ds), "comments": sum(d_cm[d] for d in ds), "shares": sum(d_sh[d] for d in ds)},
+          "visits": sum(visits_d[d] for d in ds), "follows": 0, "net_followers": 0, "followers_end": FB["followers"]}
+    pv["interactions"] = sum(pv["interactions_detail"].values())
+    pv["link_clicks"] = sum(link_d[d] for d in ds)
+    return pv
+
+
+P = {"jul": period(dt.date(2026, 7, 2), dt.date(2026, 7, 31), 0.55), "aug": period(dt.date(2026, 8, 1), dt.date(2026, 8, 31), 0.55)}
+P["win"] = {**tot, "followers_end": FB["followers"]}
+sep1 = period(END, END, 0.55)
+for f in ("views", "interactions", "visits", "link_clicks"):
+    check(f"window {f} = July + August + 1 Sep", P["win"][f] == P["jul"][f] + P["aug"][f] + sep1[f])
+check("window reels/photos split", P["win"]["views_by_type"] == {k: P["jul"]["views_by_type"][k] + P["aug"]["views_by_type"][k] + sep1["views_by_type"][k] for k in ("reels", "photos")})
+
 cumulative = {}
 for i in items:
     run, acc = [], 0
@@ -137,7 +161,7 @@ out = {
     "page_name": FB["page_name"], "followers": FB["followers"], "followers_note": FB["followers_note"],
     "observed": FB["observed"], "rules": FB["rules"], "ratio": RATIO, "ratio_pairs": len(pairs),
     "window": {"start": WIN["start"], "end": WIN["end"], **tot},
-    "items": items, "formats": formats, "cumulative": cumulative,
+    "periods": P, "items": items, "formats": formats, "cumulative": cumulative,
     "daily": {"days": [d.isoformat() for d in DAYS], "views": [views[d] for d in DAYS], "viewers": [viewers_d[d] for d in DAYS],
               "interactions": [inter[d] for d in DAYS], "visits": [visits_d[d] for d in DAYS], "link_clicks": [link_d[d] for d in DAYS]},
 }
@@ -147,5 +171,7 @@ print(f"All Facebook checks passed. Wrote src/facebook_data.js")
 print(f"  FB/IG view ratio (median of {len(pairs)} Reels): {RATIO:.4f}")
 print(f"  window: views {tot['views']:,} (Reels {reels_v:,}, photos {photo_v:,}) | viewers {tot['viewers']:,} | interactions {tot['interactions']:,} "
       f"{tot['interactions_detail']} | visits {tot['visits']} | link clicks {tot['link_clicks']} | lifetime interactions {lifetime_inter}")
+for key, pv in P.items():
+    print(f"  {key}: views {pv['views']:,} | viewers {pv['viewers']:,} | interactions {pv['interactions']} | visits {pv['visits']} | link clicks {pv['link_clicks']}")
 for i in sorted(items, key=lambda i: -i["views"])[:6]:
     print(f"  {i['id']} {i['twin']} {i['date']} {i['format']} views {i['views']:,}{'' if i['views_observed'] else ' (est.)'} reach {i['reach']:,} '{i['title'][:40]}'")

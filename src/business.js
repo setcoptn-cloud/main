@@ -7,7 +7,7 @@
   const W = C.periods.win, A = C.audience;
   // daily series start on 2 July (Instagram's 30 days for July); these screens show the window only
   const WI = DAILY.days.indexOf(W.start);
-  const isFB = window.PLATFORM === "facebook", FBD = window.FACEBOOK;
+  const isFB = window.PLATFORM === "facebook", isOV = window.PLATFORM === "overview", FBD = window.FACEBOOK;
   const PLAT = isFB ? "Facebook" : "Instagram", ACCOUNT = isFB ? FBD.page_name : "laboratoires_nihel";
   const DW = isFB ? FBD.daily : { days: DAILY.days.slice(WI), views: DAILY.views.slice(WI), follows: DAILY.follows.slice(WI) };
   const T = isFB ? FBD.window : W; // period totals of the selected platform
@@ -132,14 +132,14 @@
       <div class="sim">Illustrative mockup · simulated data</div>
       <aside class="bs-nav">
         <div class="bs-brand">Meta<br>Business Suite</div>
-        <div class="bs-acct"><span class="av">N</span><span class="nm">Laboratoires Nihel</span>${caret}</div>
+        <div class="bs-acct"><span class="av logo"></span><span class="nm">Laboratoires Nihel</span>${caret}</div>
         ${nav}<hr><div class="bs-item">Edit</div><div class="sp"></div>
         <div class="bs-item">${ic("search")}Search</div><div class="bs-item">${ic("gear")}Settings</div><div class="bs-item help">${ic("help")}Help</div>
       </aside>
       <header class="bs-head"><div><h1>Insights</h1><p>Review performance results and more.</p></div>
-        <div class="bs-ctrls">${platform ? `<span class="bs-sel">${PI(16)}${PLAT}${caret}</span>` : ""}
+        <div class="bs-ctrls">${platform && !isOV ? `<span class="bs-sel">${PI(16)}${PLAT}${caret}</span>` : ""}
           <span class="bs-sel">${ic("cal", 16)}${dateLabel}${caret}</span>
-          <span class="bs-avatar">N<i>${PI(11)}</i></span></div></header>
+          <span class="bs-avatar logo"><i>${isOV ? "" : PI(11)}</i></span></div></header>
       <nav class="bs-sub">${sub}</nav>
       <main class="bs-main"><div class="bs-scroll">${mainHtml}</div></main>
     </div>`);
@@ -289,7 +289,7 @@
               <div><div class="l">Saves ${infoI}</div><div class="v">${fmt(p.saves)}</div></div></div></div>
         </div>
         <div class="bcard"><h2 style="font-size:14.5px;font-weight:600">Feed preview</h2>
-          <div class="preview"><div class="who"><span class="av">N</span>laboratoires_nihel</div>
+          <div class="preview"><div class="who"><span class="av logo"></span>laboratoires_nihel</div>
             <div class="img" style="background-image:url('${thumb(id)}')"></div>
             <div class="acts">${ic("likeO", 20)}${ic("commentO", 20)}${ic("send", 20)}<span class="sp"></span>${ic("save", 20)}</div>
             <div class="likes">${fmt(p.likes)} likes</div><div class="pcap"><b>laboratoires_nihel</b> ${esc(p.title)}</div></div></div>
@@ -426,6 +426,82 @@
     document.body.dataset.ready = "1";
   }
 
+  // ---------- Insights > Overview: Facebook and Instagram side by side ----------
+  function ovDates(key) {
+    const p = C.periods[key], a = DAILY.days.indexOf(p.start), b = DAILY.days.indexOf(p.end);
+    const days = DAILY.days.slice(a, b + 1);
+    const fbv = days.map((d) => { const i = FBD.daily.days.indexOf(d); return i < 0 ? 0 : FBD.daily.views[i]; });
+    return { days, ig: DAILY.views.slice(a, b + 1), fb: fbv };
+  }
+  function overviewScreen(key) {
+    const ig = C.periods[key], fb = FBD.periods[key], d = ovDates(key);
+    const tile = (l, v) => `<div class="ov-t"><div class="l">${l} ${infoI}</div><div class="v">${v}</div></div>`;
+    const block = (icon, name, tiles, vals, legend) => `<div class="ov-p"><h4>${icon}${name}</h4><div class="ov-tiles">${tiles}</div>
+      <div class="ov-ch">${lineChart(vals, d.days, { w: 380, h: 170, color: "var(--bs-line-light)", label: legend })}</div></div>`;
+    const igT = tile("Views", compact(ig.views)) + tile("Reach", compact(ig.viewers)) + tile("Content interactions", compact(ig.interactions)) +
+      tile("Link clicks", fmt(ig.profile.bio_taps)) + tile("Visits", fmt(ig.profile.visits)) + tile("Follows", compact(ig.follows));
+    const fbT = tile("Views", compact(fb.views)) + tile("Viewers", compact(fb.viewers)) + tile("Content interactions", compact(fb.interactions)) +
+      tile("Link clicks", fmt(fb.link_clicks)) + tile("Visits", fmt(fb.visits)) + tile("Follows", fmt(fb.follows));
+    const inP = (x) => x.date >= ig.start && x.date <= ig.end;
+    const all = [...C.posts.filter(inP).map((x) => ({ ...x, pf: "ig", th: x.id })), ...FBD.items.filter(inP).map((x) => ({ ...x, pf: "fb", th: x.thumb }))]
+      .sort((a, b) => b.views - a.views).slice(0, 5);
+    const cards = all.map((p) => `<div class="pc"><div class="im" style="background-image:url('../assets/thumbs/${p.th}.jpg')">${p.pf === "fb" ? FBI(16) : IG(16)}</div>
+      <div class="tx"><div class="cap">${esc(p.title || (p.pf === "fb" ? FBD.page_name : "@laboratoires_nihel"))}</div><div class="dt">${dow(p.date)} ${md(p.date)}</div>
+      <div class="mx"><span>${ic("eye", 13)}${compact(p.views)}</span><span>${ic("heart", 13)}${compact(p.likes)}</span>
+      <span>${ic("comment", 13)}${fmt(p.comments)}</span><span>${ic("share", 13)}${fmt(p.shares)}</span></div></div></div>`).join("");
+    return `<div class="bcard">
+        <div class="bcard-h"><h2>Results</h2><span class="btn">${ic("export", 15)}Export ${caret}</span></div>
+        <div class="ov-grid2">${block(FBI(18), "Facebook", fbT, d.fb, "Facebook views")}${block(IG(18), "Instagram", igT, d.ig, "Instagram views")}</div>
+      </div>
+      <div class="bcard" id="ov-top">
+        <div class="sec-h" style="margin-top:0"><h2>Top content by views</h2><div class="btns"><span class="btn">See all content</span></div></div>
+        <div class="posts">${cards}<span class="next">${ic("chevR", 18)}</span></div>
+      </div>`;
+  }
+  function overviewPages() {
+    const per = [["jul", "July 2026 · last 30 days"], ["aug", "August 2026"], ["win", "Whole launch window"]];
+    const label = (k) => `${md(C.periods[k].start)}, 2026 - ${md(C.periods[k].end)}, 2026`;
+    const cols = (f, g) => per.map(([k]) => { const a = f(C.periods[k]), b = g(FBD.periods[k]);
+      return `<td>${fmt(a)}</td><td>${fmt(b)}</td><td><b>${a === null || b === null ? "–" : fmt(a + b)}</b></td>`; }).join("");
+    const row = (name, f, g, cls = "") => `<tr class="${cls}"><td>${name}</td>${cols(f, g)}</tr>`;
+    const noSum = (name, f, g) => `<tr><td>${name}</td>${per.map(([k]) => `<td>${fmt(f(C.periods[k]))}</td><td>${fmt(g(FBD.periods[k]))}</td><td>–</td>`).join("")}</tr>`;
+    const body = el(`<div class="sheet" style="grid-template-columns:1fr">
+      <div>
+        <div class="eyebrow">Appendix · illustrative mockup · simulated data</div>
+        <div class="cover-title" style="font-size:34px">Whole performance · Instagram and Facebook</div>
+        <p class="lede" style="max-width:1300px">Meta Business Suite Insights › Overview for Laboratoires Nihel, with the same dates as the Instagram mockup:
+        July as Instagram's “30 days” (2–31 July), August, and the launch window (5 July – 1 September). Instagram figures come from <code>scripts/model.py</code>,
+        Facebook figures from <code>scripts/facebook_model.py</code>; the totals below are their sums.</p>
+        <div class="panel" style="margin-top:18px"><h2>Instagram + Facebook by period</h2>
+          <table class="t tight">
+            <tr><th style="text-align:left">Metric</th>${per.map(([, n]) => `<th colspan="3" style="text-align:center">${n}</th>`).join("")}</tr>
+            <tr class="sub"><td></td>${"<td>Instagram</td><td>Facebook</td><td>Total</td>".repeat(3)}</tr>
+            ${row("Views", (p) => p.views, (p) => p.views, "tot")}
+            ${row("Content interactions", (p) => p.interactions, (p) => p.interactions, "tot")}
+            ${row("Visits", (p) => p.profile.visits, (p) => p.visits)}
+            ${row("Link clicks", (p) => p.profile.bio_taps, (p) => p.link_clicks)}
+            ${row("Follows", (p) => p.follows, (p) => p.follows)}
+            ${row("Net followers", (p) => p.net_followers, (p) => p.net_followers)}
+            ${noSum("Reach / viewers", (p) => p.viewers, (p) => p.viewers)}
+            ${noSum("Followers at end", (p) => p.followers_end, (p) => p.followers_end)}
+          </table>
+          <p class="fine">Reach, viewers and followers are not added: the same person can follow both accounts and see both, and Meta does not deduplicate people across platforms.
+          Instagram counts likes, comments, shares, saves and story replies as interactions; Facebook counts reactions, comments and shares. Facebook has no publication before 5 July,
+          so its July (30 days) equals 5–31 July. Facebook followers stayed at 105K (observed), so its follows and net followers are 0.</p></div>
+      </div></div>`);
+    addPage("Meta Business Suite · Overview mockup", "Laboratoires Nihel · Instagram + Facebook", body);
+    per.forEach(([k, n], i) => {
+      const scr = screen("overview", overviewScreen(k), null, true, label(k));
+      scr.dataset.name = `ov-${k}`;
+      const wrap = el(`<div class="bs-wrap"><div class="bs-scale"></div><div class="bs-cap"><b>${i + 2}</b> · Insights › Overview · ${n} · ${label(k)}<br>
+        Charts: views per day on each platform (Instagram includes stories; Facebook starts on 5 July).</div></div>`);
+      wrap.firstElementChild.appendChild(scr);
+      addPage(`Overview · ${n}`, `Instagram + Facebook · ${label(k)}`, wrap);
+    });
+    document.body.dataset.ready = "1";
+  }
+
+  if (isOV) { overviewPages(); return; }
   if (isFB) { facebookPages(); return; }
   intro();
   shot("bs-content-overview", "Content overview", "<b>2</b> · Content › Overview · top of page" + chartNote(), screen("c-overview", contentOverview()));

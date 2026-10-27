@@ -98,7 +98,12 @@ function inBusiness() {
       const wi = D.daily.days.indexOf(W.start), wd = D.daily.days.slice(wi);
       const FBd = window.PLATFORM === "facebook" ? window.FACEBOOK : null;
       const fbMap = FBd && { "Views": "views", "Viewers": "viewers", "Content interactions": "interactions", "Facebook link clicks": "link_clicks", "Facebook visits": "visits" };
-      if (FBd && fbMap[legend]) { values = FBd.daily[fbMap[legend]]; labelOf = (i) => md(FBd.daily.days[i]); }
+      if (/^(Instagram|Facebook) views$/.test(legend) && window.PLATFORM === "overview") {
+        const pk = C.periods[name.replace("ov-", "")], a = D.daily.days.indexOf(pk.start), b = D.daily.days.indexOf(pk.end);
+        const ds = D.daily.days.slice(a, b + 1), F2 = window.FACEBOOK.daily;
+        values = legend.startsWith("Instagram") ? D.daily.views.slice(a, b + 1) : ds.map((d) => { const i = F2.days.indexOf(d); return i < 0 ? 0 : F2.views[i]; });
+        labelOf = (i) => md(ds[i]);
+      } else if (FBd && fbMap[legend]) { values = FBd.daily[fbMap[legend]]; labelOf = (i) => md(FBd.daily.days[i]); }
       else if (legend === "Views") { values = D.daily.views.slice(wi); labelOf = (i) => md(wd[i]); }
       else if (legend === "Instagram follows") { values = D.daily.follows.slice(wi); labelOf = (i) => md(wd[i]); }
       else if (legend === "This post's views") { values = D.cumulative[topSun.id]; labelOf = (i) => `${i + 1}d`; }
@@ -152,7 +157,7 @@ function layout() {
 (async () => {
   const browser = await chromium.launch();
   let failures = 0;
-  for (const [html, fn] of [["index.html", inPage], ["business.html", inBusiness], ["facebook.html", inBusiness], ["index.html", layout], ["recap.html", layout], ["business.html", layout], ["facebook.html", layout]]) {
+  for (const [html, fn] of [["index.html", inPage], ["business.html", inBusiness], ["facebook.html", inBusiness], ["overview.html", inBusiness], ["index.html", layout], ["recap.html", layout], ["business.html", layout], ["facebook.html", layout], ["overview.html", layout]]) {
     const page = await browser.newPage({ viewport: { width: 1840, height: 1100 } });
     page.setDefaultTimeout(120000);
     await page.goto("file://" + path.join(ROOT, "src", html));
