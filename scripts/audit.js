@@ -96,7 +96,10 @@ function inBusiness() {
       const legend = svg.nextElementSibling ? svg.nextElementSibling.textContent.trim() : "";
       let values, labelOf;
       const wi = D.daily.days.indexOf(W.start), wd = D.daily.days.slice(wi);
-      if (legend === "Views") { values = D.daily.views.slice(wi); labelOf = (i) => md(wd[i]); }
+      const FBd = window.PLATFORM === "facebook" ? window.FACEBOOK : null;
+      const fbMap = FBd && { "Views": "views", "Viewers": "viewers", "Content interactions": "interactions", "Facebook link clicks": "link_clicks", "Facebook visits": "visits" };
+      if (FBd && fbMap[legend]) { values = FBd.daily[fbMap[legend]]; labelOf = (i) => md(FBd.daily.days[i]); }
+      else if (legend === "Views") { values = D.daily.views.slice(wi); labelOf = (i) => md(wd[i]); }
       else if (legend === "Instagram follows") { values = D.daily.follows.slice(wi); labelOf = (i) => md(wd[i]); }
       else if (legend === "This post's views") { values = D.cumulative[topSun.id]; labelOf = (i) => `${i + 1}d`; }
       else return bad(name, `unknown chart "${legend}"`);
@@ -149,7 +152,7 @@ function layout() {
 (async () => {
   const browser = await chromium.launch();
   let failures = 0;
-  for (const [html, fn] of [["index.html", inPage], ["business.html", inBusiness], ["index.html", layout], ["recap.html", layout], ["business.html", layout]]) {
+  for (const [html, fn] of [["index.html", inPage], ["business.html", inBusiness], ["facebook.html", inBusiness], ["index.html", layout], ["recap.html", layout], ["business.html", layout], ["facebook.html", layout]]) {
     const page = await browser.newPage({ viewport: { width: 1840, height: 1100 } });
     page.setDefaultTimeout(120000);
     await page.goto("file://" + path.join(ROOT, "src", html));

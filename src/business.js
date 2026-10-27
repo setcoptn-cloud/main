@@ -1,15 +1,20 @@
-/* Meta Business Suite (desktop) Insights screens for the Instagram account,
-   built from window.DATA. Every figure comes from data/campaign.json or from the
-   series that scripts/model.py derives and verifies. Period: the launch window. */
+/* Meta Business Suite (desktop) Insights screens, built for the Instagram account
+   (business.html, window.DATA from scripts/model.py) or the Facebook Page
+   (facebook.html sets window.PLATFORM = "facebook", window.FACEBOOK from
+   scripts/facebook_model.py). Period: the launch window. */
 (function () {
   const C = DATA.campaign, DAILY = DATA.daily, F = DATA.formats;
   const W = C.periods.win, A = C.audience;
   // daily series start on 2 July (Instagram's 30 days for July); these screens show the window only
   const WI = DAILY.days.indexOf(W.start);
-  const DW = { days: DAILY.days.slice(WI), views: DAILY.views.slice(WI), follows: DAILY.follows.slice(WI) };
-  C.posts.forEach((p) => { if (!p.title) p.title = "@laboratoires_nihel"; });
-  const POST = Object.fromEntries(C.posts.map((p) => [p.id, p]));
-  const TOP_SUN = [...C.posts].filter((p) => p.range === "sun").sort((a, b) => b.views - a.views)[0];
+  const isFB = window.PLATFORM === "facebook", FBD = window.FACEBOOK;
+  const PLAT = isFB ? "Facebook" : "Instagram", ACCOUNT = isFB ? FBD.page_name : "laboratoires_nihel";
+  const DW = isFB ? FBD.daily : { days: DAILY.days.slice(WI), views: DAILY.views.slice(WI), follows: DAILY.follows.slice(WI) };
+  const T = isFB ? FBD.window : W; // period totals of the selected platform
+  const POSTS = isFB ? FBD.items : C.posts, CUM = isFB ? FBD.cumulative : DATA.cumulative;
+  POSTS.forEach((p) => { if (!p.title) p.title = isFB ? FBD.page_name : "@laboratoires_nihel"; });
+  const POST = Object.fromEntries(POSTS.map((p) => [p.id, p]));
+  const TOP_SUN = [...POSTS].filter((p) => p.range === "sun").sort((a, b) => b.views - a.views)[0];
   const FOOT = "@laboratoires_nihel · reconstruction for an MSc thesis (A. Belhassen, 2026) · not a screenshot of Meta Business Suite";
   const BADGE = "Illustrative mockup — simulated data — not an official Meta export";
 
@@ -31,7 +36,7 @@
   }
   const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  const thumb = (id) => `../assets/thumbs/${id}.jpg`;
+  const thumb = (id) => `../assets/thumbs/${(POST[id] && POST[id].thumb) || id}.jpg`;
 
   // ---------- icons ----------
   const S = (size, body, sw = 1.8) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
@@ -83,6 +88,8 @@
   };
   const ic = (name, size = 18, sw) => S(size, P[name], sw);
   const IG = (size = 16) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="var(--bs-ig)" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="5.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" fill="var(--bs-ig)" stroke="none"/></svg>`;
+  const FBI = (size = 16) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0866ff"/><path d="M13.5 23v-8h2.6l.4-3.1h-3V9.9c0-.9.3-1.5 1.6-1.5h1.6V5.6a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.4H8V15h2.5v8" fill="#fff"/></svg>`;
+  const PI = isFB ? FBI : IG;
   const infoI = `<span class="info" style="color:#1c2b33">${S(14, P.info)}</span>`;
   const caret = S(14, P.caret, 1);
   const TELESCOPE = `<svg width="190" height="140" viewBox="0 0 190 140">
@@ -98,7 +105,7 @@
     return [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= target);
   }
   function lineChart(values, dates, { w, h, color, label }) {
-    const step = niceStep(Math.max(...values)), top = Math.ceil(Math.max(...values) / step) * step;
+    const step = Math.max(1, niceStep(Math.max(...values))), top = Math.ceil(Math.max(...values) / step) * step;
     const x0 = 44, x1 = w - 8, y0 = 8, y1 = h - 26;
     const x = (i) => x0 + (x1 - x0) * i / (values.length - 1), y = (v) => y1 - (v / top) * (y1 - y0);
     let g = "";
@@ -130,9 +137,9 @@
         <div class="bs-item">${ic("search")}Search</div><div class="bs-item">${ic("gear")}Settings</div><div class="bs-item help">${ic("help")}Help</div>
       </aside>
       <header class="bs-head"><div><h1>Insights</h1><p>Review performance results and more.</p></div>
-        <div class="bs-ctrls">${platform ? `<span class="bs-sel">${IG(16)}Instagram${caret}</span>` : ""}
+        <div class="bs-ctrls">${platform ? `<span class="bs-sel">${PI(16)}${PLAT}${caret}</span>` : ""}
           <span class="bs-sel">${ic("cal", 16)}${dateLabel}${caret}</span>
-          <span class="bs-avatar">N<i>${IG(11)}</i></span></div></header>
+          <span class="bs-avatar">N<i>${PI(11)}</i></span></div></header>
       <nav class="bs-sub">${sub}</nav>
       <main class="bs-main"><div class="bs-scroll">${mainHtml}</div></main>
     </div>`);
@@ -144,9 +151,9 @@
   // ---------- Content > Overview ----------
   function contentOverview() {
     const vals = DW.views, dates = DW.days;
-    const top = [...C.posts].sort((a, b) => b.views - a.views).slice(0, 5);
+    const top = [...POSTS].sort((a, b) => b.views - a.views).slice(0, 5);
     const typeIcon = (p) => p.format === "Reel" ? "reel" : p.format === "Carousel" ? "carousel" : "photo";
-    const cards = top.map((p) => `<div class="pc"><div class="im" style="background-image:url('${thumb(p.id)}')">${IG(16)}</div>
+    const cards = top.map((p) => `<div class="pc"><div class="im" style="background-image:url('${thumb(p.id)}')">${PI(16)}</div>
       <div class="tx"><div class="cap">${esc(p.title)}</div><div class="dt">${dow(p.date)} ${md(p.date)}</div>
       <div class="mx"><span>${ic("eye", 13)}${compact(p.views)}</span><span>${ic("heart", 13)}${compact(p.likes)}</span>
       <span>${ic("comment", 13)}${fmt(p.comments)}</span><span>${ic("share", 13)}${fmt(p.shares)}</span></div></div></div>`).join("");
@@ -154,34 +161,46 @@
       const max = Math.max(...rows.map((r) => r[1]));
       return rows.map(([n, v]) => `<div class="hbar"><div class="nm">${n}</div><div class="ln"><div class="b" style="width:${(v / max * 170).toFixed(1)}px"></div><span class="v">${fmt(v)}</span></div></div>`).join("");
     };
-    const byViews = [["Reels", F.Reel.views], ["Stories", F.Stories.views], ["Photo", F.Post.views], ["Multi photo", F.Carousel.views]];
-    const byInt = [["Reels", F.Reel.interactions], ["Photo", F.Post.interactions], ["Stories", F.Stories.interactions], ["Multi photo", F.Carousel.interactions]];
-    const published = [["Reels", F.Reel.published], ["Photos", F.Post.published], ["Multi photo", F.Carousel.published]];
-    return `
-      <div class="bcard">
-        <div class="bcard-h"><h2>${IG(17)}Content overview</h2><span class="btn">Breakdown: Content type ${caret}</span></div>
-        <div class="tabs-bs"><span class="on">All</span><span>Posts</span><span>Stories</span><span>Reels</span><span>Live</span></div>
-        <div class="tiles-bs">
-          <div class="tile-bs on"><div class="l">Views ${infoI}</div><div class="v">${compact(W.views)}</div></div>
+    const FF = isFB ? FBD.formats : null;
+    const byViews = isFB ? [["Reels", FF.Reel.views], ["Photo", FF.Photo.views]]
+      : [["Reels", F.Reel.views], ["Stories", F.Stories.views], ["Photo", F.Post.views], ["Multi photo", F.Carousel.views]];
+    const byInt = isFB ? [["Reels", FF.Reel.interactions], ["Photo", FF.Photo.interactions]]
+      : [["Reels", F.Reel.interactions], ["Photo", F.Post.interactions], ["Stories", F.Stories.interactions], ["Multi photo", F.Carousel.interactions]];
+    const published = isFB ? [["Reels", FF.Reel.published], ["Photos", FF.Photo.published]]
+      : [["Reels", F.Reel.published], ["Photos", F.Post.published], ["Multi photo", F.Carousel.published]];
+    const tiles = isFB
+      ? `<div class="tile-bs on"><div class="l">Views ${infoI}</div><div class="v">${compact(T.views)}</div></div>
+          <div class="tile-bs"><div class="l">Content interactions ${infoI}</div><div class="v">${compact(T.interactions)}</div></div>`
+      : `<div class="tile-bs on"><div class="l">Views ${infoI}</div><div class="v">${compact(W.views)}</div></div>
           <div class="tile-bs"><div class="l">Reach ${infoI}</div><div class="v">${compact(W.viewers)}</div></div>
-          <div class="tile-bs"><div class="l">Content interactions ${infoI}</div><div class="v">${compact(W.interactions)}</div></div>
-        </div>
-        <div class="ov-grid">
-          <div>${lineChart(vals, dates, { w: 600, h: 250, color: "var(--bs-line-dark)", label: "Views" })}</div>
-          <div class="bd"><h4>Views breakdown</h4><div class="s">${md(W.start)} - ${md(W.end)}</div>
-            <div class="k">Total</div><div class="n">${fmt(W.views)}</div>
+          <div class="tile-bs"><div class="l">Content interactions ${infoI}</div><div class="v">${compact(W.interactions)}</div></div>`;
+    const breakdown = isFB
+      ? `<div class="k">Total</div><div class="n">${fmt(T.views)}</div>
+            <div class="k">From Reels</div><div class="n">${fmt(T.views_by_type.reels)}</div>
+            <div class="k">From photos</div><div class="n">${fmt(T.views_by_type.photos)}</div><hr>
+            <div class="k">Viewers ${infoI}</div><div class="n">${fmt(T.viewers)}</div>`
+      : `<div class="k">Total</div><div class="n">${fmt(W.views)}</div>
             <div class="k">From Reels</div><div class="n">${fmt(W.views_by_type.reels)}</div>
             <div class="k">From posts</div><div class="n">${fmt(W.views_by_type.posts)}</div>
             <div class="k">From stories</div><div class="n">${fmt(W.views_by_type.stories)}</div><hr>
-            <div class="k">Viewers ${infoI}</div><div class="n">${fmt(W.viewers)}</div></div>
+            <div class="k">Viewers ${infoI}</div><div class="n">${fmt(W.viewers)}</div>`;
+    return `
+      <div class="bcard">
+        <div class="bcard-h"><h2>${PI(17)}Content overview</h2><span class="btn">Breakdown: Content type ${caret}</span></div>
+        <div class="tabs-bs"><span class="on">All</span><span>Posts</span><span>Stories</span><span>Reels</span><span>Live</span></div>
+        <div class="tiles-bs">${tiles}</div>
+        <div class="ov-grid">
+          <div>${lineChart(vals, dates, { w: 600, h: 250, color: "var(--bs-line-dark)", label: "Views" })}</div>
+          <div class="bd"><h4>Views breakdown</h4><div class="s">${md(W.start)} - ${md(W.end)}</div>
+            ${breakdown}</div>
         </div>
       </div>
       <div class="bcard" id="co-top">
-        <div class="sec-h" style="margin-top:0"><h2>${IG(17)}Top content by views</h2><div class="btns"><span class="btn">Boost content</span><span class="btn">See all content</span></div></div>
+        <div class="sec-h" style="margin-top:0"><h2>${PI(17)}Top content by views</h2><div class="btns"><span class="btn">Boost content</span><span class="btn">See all content</span></div></div>
         <div class="posts">${cards}<span class="next">${ic("chevR", 18)}</span></div>
       </div>
       <div class="bcard" id="co-formats">
-        <div class="bcard-h"><h2>${IG(17)}Top content formats</h2><span class="btn">${ic("export", 15)}Export ${caret}</span></div>
+        <div class="bcard-h"><h2>${PI(17)}Top content formats</h2><span class="btn">${ic("export", 15)}Export ${caret}</span></div>
         <div class="fmt-grid">
           <div class="fmt"><h4>Published content ${infoI}</h4><div class="s">Based on up to 200 pieces of content</div>${bars(published)}</div>
           <div class="fmt"><h4>Views ${infoI}</h4>${bars(byViews)}</div>
@@ -197,23 +216,32 @@
     return `
       <div class="bcard banner"><svg width="56" height="44" viewBox="0 0 56 44"><circle cx="22" cy="22" r="21" fill="#cfe4fb"/><path d="M14 30 30 12l10 10-14 14z" fill="#1d6fe0"/><path d="M30 12l6-6 4 4-6 6z" fill="#7fb3f2"/></svg>
         <p>Set a goal, track progress and learn helpful tips for your professional success.</p><span class="btn primary">Start new goal</span></div>
-      <div class="res-grid">
+      <div class="res-grid">${isFB ? fbCards() : `
         ${card("Views", compact(W.views), `<div>${lineChart(DW.views, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Views" })}</div>`)}
         ${card("Reach", compact(W.viewers), TELESCOPE)}
         ${card("Content interactions", compact(W.interactions), TELESCOPE, "res-row2")}
         ${card("Link clicks", fmt(W.profile.bio_taps), TELESCOPE)}
         ${card("Visits", fmt(W.profile.visits), TELESCOPE)}
-        ${card("Follows", compact(W.follows), `<div>${lineChart(DW.follows, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Instagram follows" })}</div>`)}
+        ${card("Follows", compact(W.follows), `<div>${lineChart(DW.follows, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Instagram follows" })}</div>`)}`}
       </div>`;
+    function fbCards() {
+      const ch = (vals, label) => `<div>${lineChart(vals, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label })}</div>`;
+      return `${card("Views", compact(T.views), ch(DW.views, "Views"))}
+        ${card("Viewers", compact(T.viewers), ch(DW.viewers, "Viewers"))}
+        ${card("Content interactions", compact(T.interactions), ch(DW.interactions, "Content interactions"), "res-row2")}
+        ${card("Link clicks", fmt(T.link_clicks), ch(DW.link_clicks, "Facebook link clicks"))}
+        ${card("Visits", fmt(T.visits), ch(DW.visits, "Facebook visits"))}
+        ${card("Follows", fmt(T.follows), TELESCOPE)}`;
+    }
   }
 
   // ---------- Content > Content (table) ----------
   function allContent() {
-    const rows = [...C.posts].sort((a, b) => b.views - a.views).slice(0, 12).map((p) => {
+    const rows = [...POSTS].sort((a, b) => b.views - a.views).slice(0, 12).map((p) => {
       const kind = p.format === "Reel" ? ["reel", "Reel"] : p.format === "Carousel" ? ["carousel", "Carousel"] : ["photo", "Photo"];
       const inter = p.likes + p.comments + p.shares + p.saves;
-      return `<tr><td><div class="trow"><div class="th" style="background-image:url('${thumb(p.id)}')">${IG(14)}</div>
-          <div class="tt"><b>${esc(p.title)}</b><small>${ic(kind[0], 13)}${kind[1]} • laboratoires_nihel</small></div>
+      return `<tr><td><div class="trow"><div class="th" style="background-image:url('${thumb(p.id)}')">${PI(14)}</div>
+          <div class="tt"><b>${esc(p.title)}</b><small>${ic(kind[0], 13)}${kind[1]} • ${ACCOUNT}</small></div>
           <span class="split"><span class="btn">Boost</span><span class="btn">${caret}</span></span><span class="btn" style="padding:0 8px">${ic("dots", 16)}</span></div></td>
         <td>${dow(p.date)} ${md(p.date)}</td><td class="r">${fmt(p.views)}</td><td class="r">${fmt(inter)}</td><td class="r">${fmt(p.reach)}</td></tr>`;
     }).join("");
@@ -241,7 +269,7 @@
       <div class="legend-bs"><span><i style="background:var(--bs-line-light)"></i>This post's views</span></div>`;
     return `
       <div class="bcard pd-head">${ic("back", 18)}<div class="th" style="background-image:url('${thumb(id)}')"></div>
-        <div class="t"><b>${esc(p.title)}</b><small>${IG(13)}Reel · Published on: ${dow(p.date)} ${md(p.date)} · laboratoires_nihel${p.collab ? ` in collaboration with ${esc(p.collab)}` : ""}</small></div>
+        <div class="t"><b>${esc(p.title)}</b><small>${PI(13)}Reel · Published on: ${dow(p.date)} ${md(p.date)} · laboratoires_nihel${p.collab ? ` in collaboration with ${esc(p.collab)}` : ""}</small></div>
         <span class="btn" style="padding:0 8px">${ic("dots", 16)}</span><span class="btn primary">Boost</span></div>
       <div class="pd-grid">
         <div>
@@ -288,7 +316,7 @@
       <div class="bcard-h"><h2>Audience</h2><span class="btn">${ic("export", 15)}Export ${caret}</span></div>
       <div class="aud-tabs"><span class="on">Demographics</span><span>Trends</span><span>Potential audience</span></div>
       <div style="margin-top:14px;font-size:13px;font-weight:600;display:flex;gap:5px;align-items:center">Followers ${infoI}</div>
-      <div class="note-bs" style="margin-top:2px">Lifetime</div><div class="aud-big">${fmt(W.followers_end)}</div>
+      <div class="note-bs" style="margin-top:2px">Lifetime</div><div class="aud-big">${fmt(isFB ? FBD.followers : W.followers_end)}</div>
       <div style="margin-top:16px;font-size:13px;font-weight:600;display:flex;gap:5px;align-items:center">Age & gender ${infoI}</div>
       <svg width="${w}" height="${h}" style="margin-top:8px">${g}</svg>
       <div class="legend-bs" style="font-size:12px;color:#1c2b33">${gender}</div>
@@ -312,16 +340,16 @@
   // Why the chart's top is lower than the biggest post: one point = one day.
   function chartNote() {
     const v = DW.views, i = v.indexOf(Math.max(...v)), day = DW.days[i];
-    const lead = C.posts.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
-    return `<br><b>Reading the chart:</b> one point = the views of one day; the ${v.length} days add up to ${fmt(W.views)}. Busiest day ${md(day)}: ${fmt(v[i])}, ` +
-      `of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of the ${esc(lead.label || lead.title)} (${fmt(lead.views)} views over 30 days, 40% on day 1).`;
+    const lead = POSTS.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
+    return `<br><b>Reading the chart:</b> one point = the views of one day; the ${v.length} days add up to ${fmt(T.views)}. Busiest day ${md(day)}: ${fmt(v[i])}` +
+      (lead ? `, of which ${fmt(CUM[lead.id][0])} from the first day of the ${esc(lead.label || lead.title)} (${fmt(lead.views)} views over 30 days, 40% on day 1).` : ".");
   }
 
   function shot(name, title, caption, scr) {
     scr.dataset.name = name;
     const wrap = el(`<div class="bs-wrap"><div class="bs-scale"></div><div class="bs-cap">${caption}</div></div>`);
     wrap.firstElementChild.appendChild(scr);
-    addPage(title, `Instagram · ${RANGE}`, wrap);
+    addPage(title, `${PLAT} · ${RANGE}`, wrap);
   }
 
   function intro() {
@@ -353,9 +381,9 @@
           <tr><td>Followers (lifetime)</td><td class="l">Followers on 1 Sep</td><td>${fmt(W.followers_end)}</td></tr>
         </table>
         <h3>Left out because the data does not exist</h3>
-        <p>Comparison with the previous period (the green “↑ %” badges), organic vs ads split, Facebook figures, watch time, 3-second views,
+        <p>Comparison with the previous period (the green “↑ %” badges), organic vs ads split, watch time, 3-second views,
         number of stories published, and the age × gender cross-split. The views breakdown therefore uses content type instead of organic/ads,
-        the age chart shows age only, and charts without daily data show the empty-state illustration, as Business Suite does.</p>
+        the age chart shows age only, and charts without daily data show the empty-state illustration, as Business Suite does. Facebook is covered by its own mockup.</p>
         <h3>Derived series</h3>
         <p>Daily views and follows, views and interactions by format, and the post's cumulative views come from the same deterministic
         model as the app mockup (rules 1 and 5). <code>scripts/model.py</code> checks that they add up exactly to the source totals.</p>
@@ -364,6 +392,41 @@
     addPage("Meta Business Suite · Insights mockup", "Instagram · launch window", body);
   }
 
+  function facebookPages() {
+    const obs = FBD.items.filter((i) => i.views_observed), est = FBD.items.filter((i) => !i.views_observed);
+    const rules = FBD.rules.map(([h, t]) => `<li><b>${h}.</b> ${t}</li>`).join("");
+    const body = el(`<div class="sheet" style="grid-template-columns:1.05fr 1fr">
+      <div>
+        <div class="eyebrow">Appendix · illustrative mockup · simulated data</div>
+        <div class="cover-title">Meta Business Suite Insights<br>for the Laboratoires Nihel Facebook Page</div>
+        <p class="lede">Desktop Insights screens for the sun care launch window (${RANGE}) with Facebook selected, laid out like the reference
+        Business Suite screenshots. The ${FBD.items.length} Facebook publications (${obs.length} Reels, ${est.length} photo posts) are each matched to their Instagram twin by image.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Followers (unchanged)</div><div class="v">${fmt(FBD.followers)}</div></div>
+          <div class="kpi"><div class="l">Views · window</div><div class="v">${fmt(T.views)}</div></div>
+          <div class="kpi"><div class="l">Content interactions</div><div class="v">${fmt(T.interactions)}</div></div>
+          <div class="kpi"><div class="l">Viewers · window</div><div class="v">${fmt(T.viewers)}</div></div>
+        </div>
+        <div class="panel" style="margin-top:20px"><h2>What is observed and what is estimated</h2>
+          <p><span class="tag o">O</span><b>Observed:</b> ${esc(FBD.observed)} ${esc(FBD.followers_note)}</p>
+          <p><span class="tag e">E</span><b>Estimated:</b> views of the ${est.length} photo posts, viewers, visits, link clicks, the day-by-day split and all audience data.</p>
+          <p><b>Not on Facebook:</b> the 15 Aug black-and-white Reel and the two collab Reels (5 and 20 July) have no Facebook twin. No stories, watch time or 3-second views are available, so those tiles are left out.</p></div>
+      </div>
+      <div class="panel"><h2>Rules</h2><ol class="rules">${rules}</ol>
+        <p class="fine">Photo views ratio: median of ${FBD.ratio_pairs} Reels = ${(FBD.ratio * 100).toFixed(1)}% of Instagram views. Lifetime interactions of the ${FBD.items.length} items:
+        ${fmt(FBD.items.reduce((a, i) => a + i.interactions, 0))}; ${fmt(T.interactions)} of them fall inside the window (rule 1). All sums are checked by <code>scripts/facebook_model.py</code>.</p></div>
+    </div>`);
+    addPage("Meta Business Suite · Facebook Insights mockup", "Laboratoires Nihel · launch window", body);
+    shot("fb-content-overview", "Content overview", "<b>2</b> · Content › Overview · top of page" + chartNote(), screen("c-overview", contentOverview()));
+    shot("fb-content-overview-2", "Content overview", "<b>3</b> · Content › Overview · scrolled to top content and formats", screen("c-overview", contentOverview(), ["co-top", 0]));
+    shot("fb-results", "Results", "<b>4</b> · Results · top of page" + chartNote(), screen("results", results()));
+    shot("fb-results-2", "Results", "<b>5</b> · Results · scrolled · Follows = 0: the Page stayed at 105K", screen("results", results(), ["res-row2", 0]));
+    shot("fb-all-content", "Content", `<b>6</b> · Content › Content · 12 of ${FBD.items.length} publications, sorted by views (photo views estimated)`, screen("c-content", allContent()));
+    shot("fb-audience", "Audience", "<b>7</b> · Audience · 105K followers (observed); demographics reuse the Instagram estimates, no Facebook audience data", screen("audience", audience(), null, true, "Lifetime"));
+    document.body.dataset.ready = "1";
+  }
+
+  if (isFB) { facebookPages(); return; }
   intro();
   shot("bs-content-overview", "Content overview", "<b>2</b> · Content › Overview · top of page" + chartNote(), screen("c-overview", contentOverview()));
   shot("bs-content-overview-2", "Content overview", "<b>3</b> · Content › Overview · scrolled to top content and formats", screen("c-overview", contentOverview(), ["co-top", 0]));

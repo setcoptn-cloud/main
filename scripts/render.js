@@ -10,6 +10,7 @@ const DOCS = [
   { html: "index.html", pdf: "Nihel_Sun_Insights_v3_mockup.pdf", pages: "pages", prefix: "page" },
   { html: "recap.html", pdf: "Nihel_Sun_Monthly_Recap_v3.pdf", pages: "pages", prefix: "recap" },
   { html: "business.html", pdf: "Nihel_Meta_Business_Suite_mockup.pdf", pages: "pages", prefix: "business" },
+  { html: "facebook.html", pdf: "Nihel_Meta_Business_Suite_Facebook_mockup.pdf", pages: "pages", prefix: "facebook" },
 ];
 
 (async () => {
