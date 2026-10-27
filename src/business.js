@@ -4,6 +4,9 @@
 (function () {
   const C = DATA.campaign, DAILY = DATA.daily, F = DATA.formats;
   const W = C.periods.win, A = C.audience;
+  // daily series start on 2 July (Instagram's 30 days for July); these screens show the window only
+  const WI = DAILY.days.indexOf(W.start);
+  const DW = { days: DAILY.days.slice(WI), views: DAILY.views.slice(WI), follows: DAILY.follows.slice(WI) };
   const POST = Object.fromEntries(C.posts.map((p) => [p.id, p]));
   const TOP_SUN = [...C.posts].filter((p) => p.range === "sun").sort((a, b) => b.views - a.views)[0];
   const FOOT = "@laboratoires_nihel · reconstruction for an MSc thesis (A. Belhassen, 2026) · not a screenshot of Meta Business Suite";
@@ -139,7 +142,7 @@
 
   // ---------- Content > Overview ----------
   function contentOverview() {
-    const vals = DAILY.views, dates = DAILY.days;
+    const vals = DW.views, dates = DW.days;
     const top = [...C.posts].sort((a, b) => b.views - a.views).slice(0, 5);
     const typeIcon = (p) => p.format === "Reel" ? "reel" : p.format === "Carousel" ? "carousel" : "photo";
     const cards = top.map((p) => `<div class="pc"><div class="im" style="background-image:url('${thumb(p.id)}')">${IG(16)}</div>
@@ -194,12 +197,12 @@
       <div class="bcard banner"><svg width="56" height="44" viewBox="0 0 56 44"><circle cx="22" cy="22" r="21" fill="#cfe4fb"/><path d="M14 30 30 12l10 10-14 14z" fill="#1d6fe0"/><path d="M30 12l6-6 4 4-6 6z" fill="#7fb3f2"/></svg>
         <p>Set a goal, track progress and learn helpful tips for your professional success.</p><span class="btn primary">Start new goal</span></div>
       <div class="res-grid">
-        ${card("Views", compact(W.views), `<div>${lineChart(DAILY.views, DAILY.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Views" })}</div>`)}
+        ${card("Views", compact(W.views), `<div>${lineChart(DW.views, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Views" })}</div>`)}
         ${card("Reach", compact(W.viewers), TELESCOPE)}
         ${card("Content interactions", compact(W.interactions), TELESCOPE, "res-row2")}
         ${card("Link clicks", fmt(W.profile.bio_taps), TELESCOPE)}
         ${card("Visits", fmt(W.profile.visits), TELESCOPE)}
-        ${card("Follows", compact(W.follows), `<div>${lineChart(DAILY.follows, DAILY.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Instagram follows" })}</div>`)}
+        ${card("Follows", compact(W.follows), `<div>${lineChart(DW.follows, DW.days, { w: 390, h: 175, color: "var(--bs-line-light)", label: "Instagram follows" })}</div>`)}
       </div>`;
   }
 
@@ -307,7 +310,7 @@
   }
   // Why the chart's top is lower than the biggest post: one point = one day.
   function chartNote() {
-    const v = DAILY.views, i = v.indexOf(Math.max(...v)), day = DAILY.days[i];
+    const v = DW.views, i = v.indexOf(Math.max(...v)), day = DW.days[i];
     const lead = C.posts.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
     return `<br><b>Reading the chart:</b> one point = the views of one day; the ${v.length} days add up to ${fmt(W.views)}. Busiest day ${md(day)}: ${fmt(v[i])}, ` +
       `of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of “${esc(lead.title)}” (${fmt(lead.views)} views over 30 days, 40% on day 1).`;

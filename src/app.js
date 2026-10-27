@@ -21,8 +21,6 @@
   }
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const shortDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); return MON[m - 1] + " " + d; };
-  // the selector shows the range rather than Instagram's "Custom" so each screen states its period
-  const rangeLabel = (key) => shortDate(PERIODS[key].start) + " – " + shortDate(PERIODS[key].end);
   const pctNum = (s) => parseFloat(s);
   const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -32,23 +30,24 @@
   const S = (size, body, extra = "") =>
     `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${body}</svg>`;
   const I = {
-    back: S(24, '<path d="M15 4.5 7.5 12l7.5 7.5"/>', 'stroke-width="2.3"'),
-    share: S(24, '<path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 3v11"/><path d="M8.3 6.6 12 3l3.7 3.6"/>', 'stroke-width="1.9"'),
-    info: S(24, '<circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/>', 'stroke-width="1.9"'),
-    infoSm: S(15, '<circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/>', 'stroke-width="2.1"'),
-    chev: S(12, '<path d="m6 9 6 6 6-6"/>', 'stroke-width="2.6"'),
+    back: S(27, '<path d="M15 4.5 7.5 12l7.5 7.5"/>', 'stroke-width="2.1"'),
+    share: S(26, '<path d="M8.5 9.5H5.5v11.5h13V9.5h-3"/><path d="M12 2.5v12"/><path d="M8 6.3 12 2.5l4 3.8"/>', 'stroke-width="1.8"'),
+    info: S(27, '<circle cx="12" cy="12" r="9.6"/><path d="M12 10.8v6"/><circle cx="12" cy="7.5" r=".7" fill="currentColor"/>', 'stroke-width="1.7"'),
+    infoSm: S(17, '<circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/>', 'stroke-width="2.1"'),
+    chev: S(14, '<path d="m6 9 6 6 6-6"/>', 'stroke-width="2.6"'),
     heart: (s = 12) => S(s, '<path d="M12 20s-7.5-4.6-9.2-9.3C1.7 7.5 3.8 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.2 0 5.3 3 4.2 6.2C19.5 15.4 12 20 12 20Z"/>', 'stroke-width="2.2"'),
-    comment: (s = 12) => S(s, '<path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.2A8.5 8.5 0 1 1 20.5 12Z"/>', 'stroke-width="2.2"'),
-    send: (s = 12) => S(s, '<path d="M21.5 3 10 13.2"/><path d="M21.5 3 15 21l-5-7.8L2.5 9.4 21.5 3Z"/>', 'stroke-width="2.2"'),
+    comment: (s = 12) => S(s, '<path d="M3.5 12a8.5 8.5 0 0 0 12.6 7.4l4.4 1.1-1.1-4.2A8.5 8.5 0 1 0 3.5 12Z"/>', 'stroke-width="2"'),
+    send: (s = 12) => S(s, '<path d="M3 4.5h18L12.6 20.5l-2.3-7.6Z"/><path d="M10.3 12.9 21 4.5"/>', 'stroke-width="2"'),
     save: (s = 12) => S(s, '<path d="M18.5 21 12 15.5 5.5 21V3.5h13V21Z"/>', 'stroke-width="2.2"'),
-    repost: (s = 12) => S(s, '<path d="M17 2.5 20.5 6 17 9.5"/><path d="M3.5 11.5V10a4 4 0 0 1 4-4h13"/><path d="M7 21.5 3.5 18 7 14.5"/><path d="M20.5 12.5V14a4 4 0 0 1-4 4h-13"/>', 'stroke-width="2.2"'),
-    eye: S(12, '<path d="M1.8 12S5.5 5 12 5s10.2 7 10.2 7-3.7 7-10.2 7S1.8 12 1.8 12Z"/><circle cx="12" cy="12" r="3.2"/>', 'stroke-width="2.4"'),
+    repost: (s = 12) => S(s, '<path d="M16.5 3 20 6.5 16.5 10"/><path d="M4 12v-1.5a4 4 0 0 1 4-4h12"/><path d="M7.5 21 4 17.5 7.5 14"/><path d="M20 12v1.5a4 4 0 0 1-4 4H4"/>', 'stroke-width="2"'),
+    eye: S(13, '<path d="M1.8 12S5.5 5 12 5s10.2 7 10.2 7-3.7 7-10.2 7S1.8 12 1.8 12Z"/><circle cx="12" cy="12" r="3.2"/>', 'stroke-width="2.4"'),
     reel: (s = 14) => S(s, '<rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5"/><path d="M2.8 8.3h18.4M9 2.8l3 5.5M15 2.8l3 5.5"/><path d="M10 11.6v5.6l4.8-2.8L10 11.6Z" fill="currentColor" stroke-width="1.2"/>', 'stroke-width="1.9"'),
     carousel: (s = 14) => S(s, '<rect x="2.8" y="6.5" width="14.7" height="14.7" rx="2.5"/><path d="M7 2.8h11.7a2.5 2.5 0 0 1 2.5 2.5V17"/>', 'stroke-width="2"'),
-    person: S(22, '<circle cx="12" cy="12" r="9.3"/><circle cx="12" cy="9.8" r="3.2"/><path d="M6.2 18.6c1.3-2.3 3.4-3.5 5.8-3.5s4.5 1.2 5.8 3.5"/>', 'stroke-width="1.8"'),
-    extlink: S(22, '<path d="M13.5 3.5h7v7"/><path d="M20.5 3.5 11 13"/><path d="M18 14v4.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2H10"/>', 'stroke-width="1.8"'),
-    store: S(22, '<path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.67 0 2.8 2.8 0 0 0 5.66 0 2.8 2.8 0 0 0 5.67 0"/><path d="M5 12.2V20h14v-7.8"/><path d="M10 20v-4.5h4V20"/>', 'stroke-width="1.8"'),
+    person: S(24, '<circle cx="12" cy="12" r="9.3"/><circle cx="12" cy="9.8" r="3.2"/><path d="M6.2 18.6c1.3-2.3 3.4-3.5 5.8-3.5s4.5 1.2 5.8 3.5"/>', 'stroke-width="1.8"'),
+    extlink: S(24, '<path d="M13.5 3.5h7v7"/><path d="M20.5 3.5 11 13"/><path d="M18 14v4.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2H10"/>', 'stroke-width="1.8"'),
+    store: S(24, '<path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.67 0 2.8 2.8 0 0 0 5.66 0 2.8 2.8 0 0 0 5.67 0"/><path d="M5 12.2V20h14v-7.8"/><path d="M10 20v-4.5h4V20"/>', 'stroke-width="1.8"'),
   };
+  const bed = `<svg width="21" height="13" viewBox="0 0 21 13" fill="#fff"><path d="M1 1.2h1.6v5.3h16.8c.6 0 1 .4 1 1v5.3h-1.6v-2.3H2.6v2.3H1z"/><rect x="3.5" y="2.6" width="5.2" height="3.4" rx="1.4"/><rect x="9.6" y="2.6" width="9.6" height="3.4" rx="1.4"/></svg>`;
   const signal = `<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx=".8" fill="#fff"/><rect x="5" y="5.5" width="3" height="6.5" rx=".8" fill="#fff"/><rect x="10" y="3" width="3" height="9" rx=".8" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx=".8" fill="#fff"/></svg>`;
   const wifi = `<svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.3-1.3A10.3 10.3 0 0 0 8 .8 10.3 10.3 0 0 0 .7 3.7L2 5a8.5 8.5 0 0 1 6-2.4Z"/><path d="M8 6.2c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.7 6.7 0 0 0 8 4.4c-1.8 0-3.5.7-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3Z"/><path d="M8 9.7c.4 0 .8.2 1.1.4L8 11.3 6.9 10.1c.3-.2.7-.4 1.1-.4Z"/><circle cx="8" cy="10.2" r="1.3"/></svg>`;
   const battery = `<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.6" fill="none" stroke="#fff" stroke-opacity=".45"/><rect x="2.2" y="2.2" width="17" height="8.6" rx="2" fill="#fff"/><path d="M25 4.4v4.2c.8-.3 1.4-1.1 1.4-2.1S25.8 4.7 25 4.4Z" fill="#fff" fill-opacity=".5"/></svg>`;
@@ -58,13 +57,12 @@
     const tabs = ["Overview", "Content", "Audience"].map((t) => `<div class="${t === tab ? "on" : ""}">${t}</div>`).join("");
     const node = el(`<div class="phone">
       <div class="ph-top">
-        <div class="status"><span class="time">12:29</span><span class="sys">${signal}${wifi}${battery}</span></div>
+        <div class="status"><span class="time">12:29${bed}</span><span class="sys">${signal}${wifi}${battery}</span></div>
         <div class="nav"><span class="back">${I.back}</span><span class="title">Insights</span><span class="acts">${I.share}${I.info}</span></div>
         <div class="tabs">${tabs}</div>
-        <div class="simline">Illustrative mockup · simulated data</div>
       </div>
       <div class="viewport"><div class="scroll">${inner}</div></div>
-      <div class="home-fade"></div><div class="home"></div>
+      <div class="home-fade"></div><div class="simline">Illustrative mockup · simulated data</div><div class="home"></div>
     </div>`);
     node.dataset.anchor = scroll ? scroll[0] : "";
     node.dataset.at = scroll ? scroll[1] : 0;
@@ -89,8 +87,8 @@
   }
 
   // Line chart drawn like Instagram: top gridline = series maximum, middle = half, bottom = 0.
-  function lineChart(values, dates, height = 112) {
-    const W = 375, x0 = 46, x1 = 347, top = 8, bot = top + height;
+  function lineChart(values, dates, height = 124) {
+    const W = 414, x0 = 50, x1 = 383, top = 10, bot = top + height;
     const max = Math.max(...values);
     const x = (i) => x0 + (x1 - x0) * (i / (values.length - 1));
     const y = (v) => bot - (v / max) * height;
@@ -98,13 +96,13 @@
     const lab = (v) => compact(v, false);
     const grid = [max, max / 2, 0].map((v) =>
       `<line x1="${x0}" x2="${x1}" y1="${y(v)}" y2="${y(v)}" stroke="#2b2e35" stroke-width="1"/>
-       <text x="16" y="${y(v) + 4}" font-size="10.5" fill="#a8abb3">${lab(v)}</text>`).join("");
+       <text x="42" y="${y(v) + 4.5}" font-size="13" fill="#a8abb3" text-anchor="end">${lab(v)}</text>`).join("");
     const mid = Math.floor((values.length - 1) / 2);
-    const xl = `<text x="${x0}" y="${bot + 18}" font-size="10.5" fill="#a8abb3">${shortDate(dates[0])}</text>
-      <text x="${x(mid)}" y="${bot + 18}" font-size="10.5" fill="#a8abb3" text-anchor="middle">${shortDate(dates[mid])}</text>
-      <text x="${x1}" y="${bot + 18}" font-size="10.5" fill="#a8abb3" text-anchor="end">${shortDate(dates[dates.length - 1])}</text>`;
-    return `<svg class="chart" width="${W}" height="${bot + 26}" viewBox="0 0 ${W} ${bot + 26}">${grid}
-      <polyline points="${pts}" fill="none" stroke="var(--ig-magenta)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>${xl}</svg>`;
+    const xl = `<text x="${x0}" y="${bot + 20}" font-size="13" fill="#a8abb3">${shortDate(dates[0])}</text>
+      <text x="${x(mid)}" y="${bot + 20}" font-size="13" fill="#a8abb3" text-anchor="middle">${shortDate(dates[mid])}</text>
+      <text x="${x1}" y="${bot + 20}" font-size="13" fill="#a8abb3" text-anchor="end">${shortDate(dates[dates.length - 1])}</text>`;
+    return `<svg class="chart" width="${W}" height="${bot + 30}" viewBox="0 0 ${W} ${bot + 30}">${grid}
+      <polyline points="${pts}" fill="none" stroke="var(--ig-magenta)" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>${xl}</svg>`;
   }
 
   function slice(key, series) {
@@ -131,10 +129,10 @@
     const intBar = (name, k) => bar(name, it[k] ? [[it[k] / p.interactions, "var(--ig-magenta)"]] : [], fmt(it[k]));
     const top = postsIn(key).slice(0, 4).map((x) =>
       `<div class="tile" style="background-image:url('${thumb(x.id)}')">
-        ${x.format === "Reel" ? `<span class="ti">${I.reel(15)}</span>` : x.format === "Carousel" ? `<span class="ti">${I.carousel(15)}</span>` : ""}
+        ${x.format === "Reel" ? `<span class="ti">${I.reel(17)}</span>` : x.format === "Carousel" ? `<span class="ti">${I.carousel(17)}</span>` : ""}
         <span class="tv">${I.eye}${compact(x.views)}</span></div>`).join("");
     return `
-      <div class="row sec-first"><span class="h-big">All content</span>${picker(rangeLabel(key))}</div>
+      <div class="row sec-first"><span class="h-big">All content</span>${picker(PERIODS[key].picker)}</div>
       <div class="cards">
         <div class="card on"><div class="lbl">Views</div><div class="val">${fmt(p.views)}</div></div>
         <div class="card"><div class="lbl">Net followers</div><div class="val">+${fmt(p.net_followers)}</div></div>
@@ -150,7 +148,7 @@
       <div class="sec row" id="sec-top"><span class="h-sec">Top content by views</span><span class="link">See all</span></div>
       <div class="tiles">${top}</div>
       <div class="sec" id="sec-int">${secTitle("Interactions by content type")}</div>
-      <div class="chips"><span class="chip on">All</span><span class="chip">${I.heart(12)}Likes</span><span class="chip">${I.comment(12)}Comments</span><span class="chip">${I.repost(12)}Reposts</span><span class="chip">${I.send(12)}Shares</span></div>
+      <div class="chips"><span class="chip on">All</span><span class="chip">${I.heart(14)}Likes</span><span class="chip">${I.comment(14)}Comments</span><span class="chip">${I.repost(14)}Reposts</span><span class="chip">${I.send(14)}Shares</span></div>
       <div class="bars">${intBar("Posts", "posts")}${intBar("Reels", "reels")}${intBar("Stories", "stories")}${intBar("Live videos", "live")}</div>
       <div class="sec" id="sec-prof">${secTitle("Profile activity")}</div>
       <div class="prof">
@@ -161,18 +159,24 @@
   }
 
   // ---------- Content tab ----------
+  // Instagram lists post age relative to the day the screen is viewed: here the day after the period ends
+  function ago(iso, end) {
+    const days = Math.round((Date.parse(end) - Date.parse(iso)) / 864e5) + 1;
+    return days < 7 ? `${days}d` : `${Math.floor(days / 7)}w`;
+  }
+
   function content(key) {
     const rows = postsIn(key).slice(0, 10).map((x) => `
       <div class="li">
-        <div class="th" style="background-image:url('${thumb(x.id)}')">${x.format === "Reel" ? I.reel(10) : x.format === "Carousel" ? I.carousel(10) : ""}</div>
+        <div class="th" style="background-image:url('${thumb(x.id)}')">${x.format === "Reel" ? I.reel(11) : x.format === "Carousel" ? I.carousel(11) : ""}</div>
         <div class="tx">
-          <div class="cap"><span class="c">${esc(x.title || "")}</span><span class="d">${shortDate(x.date)}</span></div>
-          <div class="mx"><span>${I.heart()}${fmt(x.likes)}</span><span>${I.comment()}${fmt(x.comments)}</span><span>${I.send()}${fmt(x.shares)}</span><span>${I.save()}${fmt(x.saves)}</span></div>
+          <div class="cap"><span class="c">${esc(x.title || "")}</span><span class="d">${ago(x.date, PERIODS[key].end)}</span></div>
+          <div class="mx"><span>${I.heart(15)}${fmt(x.likes)}</span><span>${I.comment(15)}${fmt(x.comments)}</span><span>${I.repost(15)}0</span><span>${I.send(15)}${fmt(x.shares)}</span></div>
         </div>
         <div class="rv"><b>${compact(x.views, true)}</b><small>Views</small></div>
       </div>`).join("");
     return `
-      <div class="row sec-first"><span class="h-big dd">All content ${I.chev}</span>${picker(rangeLabel(key))}</div>
+      <div class="row sec-first"><span class="h-big dd">All content ${I.chev}</span>${picker(PERIODS[key].picker)}</div>
       <div class="chips"><span class="chip">Latest</span><span class="chip on">Views</span><span class="chip">Viewers</span><span class="chip">Follows</span><span class="chip">Likes</span><span class="chip">Comments</span></div>
       <div class="list">${rows}</div>`;
   }
@@ -186,12 +190,12 @@
     const loc = locMode === "cities" ? p.cities : A.countries;
     const act = Object.entries(A.active_times_relative);
     return `
-      <div class="row sec-first"><span class="h-big">Followers</span>${picker(rangeLabel(key))}</div>
+      <div class="row sec-first"><span class="h-big">Followers</span>${picker(PERIODS[key].picker)}</div>
       <div class="fol-num">${fmt(p.followers_end)}</div>
       <div class="fol-delta"><b>${p.growth_pct}</b> since ${p.since}</div>
       <div class="sec">${secTitle("Follower growth over time", false)}</div>
       <div class="chips"><span class="chip on">Overall</span><span class="chip">Follows</span><span class="chip">Unfollows</span></div>
-      ${lineChart(f.values, f.dates, 96)}
+      ${lineChart(f.values, f.dates, 106)}
       <div class="sec" id="sec-gender">${secTitle("Gender")}</div>
       ${pctBars(A.gender, ["var(--ig-magenta)", "var(--ig-pink)"])}
       <div class="sec" id="sec-age">${secTitle("Age range")}</div>
@@ -226,13 +230,13 @@
     const wrap = el(`<div class="screens"></div>`);
     const shots = kind === "overview"
       ? [["Overview", overview(key), null, "Overview · chart = views per day"],
-         ["Overview", overview(key), ["sec-top", 176], "Overview · scrolled to top content"],
-         ["Overview", overview(key), ["sec-int", 118], "Overview · scrolled to profile activity"],
+         ["Overview", overview(key), ["sec-top", 165], "Overview · scrolled to top content"],
+         ["Overview", overview(key), ["sec-int", 130], "Overview · scrolled to profile activity"],
          ["Content", content(key), null, "Content · sorted by views"]]
       : [["Audience", audience(key, "countries"), null, "Audience · followers"],
-         ["Audience", audience(key, "countries"), ["sec-age", 52], "Audience · age and countries"],
-         ["Audience", audience(key, "cities"), ["sec-loc", 26], "Audience · cities and languages"],
-         ["Audience", audience(key, "countries"), ["sec-active", 170], "Audience · active times"]];
+         ["Audience", audience(key, "countries"), ["sec-age", 57], "Audience · age and countries"],
+         ["Audience", audience(key, "cities"), ["sec-loc", 29], "Audience · cities and languages"],
+         ["Audience", audience(key, "countries"), ["sec-active", 188], "Audience · active times"]];
     shots.forEach(([tab, html, scroll, cap], i) => {
       const fig = el(`<figure class="shot"></figure>`);
       const ph = phone(tab, html, scroll);
@@ -270,18 +274,18 @@
 
   // ---------- cover ----------
   function cover() {
-    const J = PERIODS.jul, G = PERIODS.aug, W = PERIODS.win;
-    const sep = (f) => f(W) - f(J) - f(G);
+    const J = PERIODS.jul, G = PERIODS.aug, W = PERIODS.win, R = PERIODS.pre;
+    const sep = (f) => f(W) - (f(J) - f(R)) - f(G);
     const vt = (k) => (p) => p.views_by_type[k];
     const idt = (k) => (p) => p.interactions_detail[k];
-    const r = (label, f, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${fmt(f(J))}</td><td>${fmt(f(G))}</td><td>${fmt(sep(f))}</td><td>${fmt(f(W))}</td></tr>`;
-    const signed = (label, f, cls = "") => `<tr class="${cls}"><td>${label}</td><td>+${fmt(f(J))}</td><td>+${fmt(f(G))}</td><td>+${fmt(sep(f))}</td><td>+${fmt(f(W))}</td></tr>`;
+    const r = (label, f, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${fmt(f(J))}</td><td>${fmt(f(R))}</td><td>${fmt(f(G))}</td><td>${fmt(sep(f))}</td><td>${fmt(f(W))}</td></tr>`;
+    const signed = (label, f, cls = "") => `<tr class="${cls}"><td>${label}</td><td>+${fmt(f(J))}</td><td>+${fmt(f(R))}</td><td>+${fmt(f(G))}</td><td>+${fmt(sep(f))}</td><td>+${fmt(f(W))}</td></tr>`;
     const splitRow = (label, k) => `<tr><td>${label}</td>${["jul", "aug", "win"].map((q) => PERIODS[q].split[k].map((x) => `<td>${x === null ? "–" : fmt(x)}</td>`).join("")).join("")}</tr>`;
     const body = el(`<div class="sheet" style="grid-template-columns: 1.05fr 1fr;">
       <div>
         <div class="eyebrow">Appendix · illustrative mockup · simulated data · version 3</div>
         <div class="cover-title">The Nihel Sun care launch,<br>shown as Instagram Insights screens</div>
-        <p class="lede">July, August and the whole launch window (5 July – 1 September 2026), redrawn from the reference
+        <p class="lede">July (Instagram’s last 30 days: 2–31 July), August and the whole launch window (5 July – 1 September 2026), redrawn from the reference
         Instagram Insights screenshots. Figures: the version 2 simulation plus three Reels that only show in the Reels tab (5, 20 and 25 July), added with the same rules; the
         day-by-day charts come from the same deterministic model, so every total is the exact sum of its parts.</p>
         <div class="kpis">
@@ -299,13 +303,13 @@
           <p><span class="tag o">O</span><b>Observed:</b> ${C.observed}</p>
           <p><span class="tag e">E</span><b>Estimated:</b> ${C.estimated}</p>
           <p><b>Scope:</b> as in Instagram, the screens cover the whole account, so the other-range publications (25 Jul Fête de la République Reel; 13, 15 and 21 Aug) appear in top content. Reels hidden from the profile grid still count, as in Instagram. The split between sun care and other ranges is given in the table opposite.</p>
-          <p><b>Reading the screens:</b> the date selector shows the period of each screen (Instagram itself would read “Custom” for a custom range); the range is also stated under every screen and on the chart axis. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
+          <p><b>Reading the screens:</b> the date selector reads as in Instagram: “30 days” for July (the last 30 days on 1 August: 2–31 July) and “Custom” for August and the window; each range is also stated under every screen and on the chart axis. Content lists show post age as on the day after the period (1w, 3d…). Reposts are not in the data and show 0. July screens end on 31 July, so the 15 Aug Reel only appears from August on. Bars are drawn as Instagram draws them: views and interactions as a share of the total, audience bars as a percentage of 100%.</p>
         </div>
       </div>
       <div class="panel">
         <h2>Reconciliation by period</h2>
         <table class="t tight">
-          <tr><th>Metric</th><th>July</th><th>August</th><th>1 Sep*</th><th>Window</th></tr>
+          <tr><th>Metric</th><th>July (30 days)</th><th>of which 2–4 Jul*</th><th>August</th><th>1 Sep*</th><th>Window</th></tr>
           ${r("Views", (p) => p.views, "tot")}
           ${r("Reels", vt("reels"), "sub")}${r("Posts", vt("posts"), "sub")}${r("Stories", vt("stories"), "sub")}
           ${r("Interactions", (p) => p.interactions, "tot")}
@@ -314,11 +318,11 @@
           ${r("Bio link taps", (p) => p.profile.bio_taps, "sub")}${r("Business address taps", (p) => p.profile.address_taps, "sub")}
           ${signed("Net followers", (p) => p.net_followers, "tot")}
           ${r("Follows", (p) => p.follows, "sub")}${r("Unfollows", (p) => p.unfollows, "sub")}
-          <tr class="tot"><td>Accounts reached</td><td>${fmt(J.viewers)}</td><td>${fmt(G.viewers)}</td><td>–</td><td>${fmt(W.viewers)}</td></tr>
-          <tr class="tot"><td>Followers at end</td><td>${fmt(J.followers_end)}</td><td>${fmt(G.followers_end)}</td><td>${fmt(W.followers_end)}</td><td>${fmt(W.followers_end)}</td></tr>
-          <tr class="tot"><td>Best day</td><td>${J.best_day}</td><td>${G.best_day}</td><td></td><td>${W.best_day}</td></tr>
+          <tr class="tot"><td>Accounts reached</td><td>${fmt(J.viewers)}</td><td>–</td><td>${fmt(G.viewers)}</td><td>–</td><td>${fmt(W.viewers)}</td></tr>
+          <tr class="tot"><td>Followers at end</td><td>${fmt(J.followers_end)}</td><td>${fmt(R.followers_end)}</td><td>${fmt(G.followers_end)}</td><td>${fmt(W.followers_end)}</td><td>${fmt(W.followers_end)}</td></tr>
+          <tr class="tot"><td>Best day</td><td>${J.best_day}</td><td></td><td>${G.best_day}</td><td></td><td>${W.best_day}</td></tr>
         </table>
-        <p class="fine">* 1 September = window − July − August. Accounts reached is not additive: the same people see several pieces (rule 4), so it has no 1 Sep value. Followers start at ${fmt(C.followers_start.value)} on 4 July.</p>
+        <p class="fine">* July is Instagram's “30 days” (2–31 Jul); 2–4 Jul are before the launch (rule 9). Window = July − 2–4 Jul + August + 1 Sep. Accounts reached is not additive (rule 4), so it has no value for the partial columns. Followers: ${fmt(C.followers_start.value)} on 4 July.</p>
         <h3>Sun care vs other ranges</h3>
         <table class="t">
           <tr><th></th><th colspan="3" style="text-align:center">July</th><th colspan="3" style="text-align:center">August</th><th colspan="3" style="text-align:center">Window</th></tr>

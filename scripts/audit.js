@@ -95,8 +95,9 @@ function inBusiness() {
       if (!pl) return;
       const legend = svg.nextElementSibling ? svg.nextElementSibling.textContent.trim() : "";
       let values, labelOf;
-      if (legend === "Views") { values = D.daily.views; labelOf = (i) => md(D.daily.days[i]); }
-      else if (legend === "Instagram follows") { values = D.daily.follows; labelOf = (i) => md(D.daily.days[i]); }
+      const wi = D.daily.days.indexOf(W.start), wd = D.daily.days.slice(wi);
+      if (legend === "Views") { values = D.daily.views.slice(wi); labelOf = (i) => md(wd[i]); }
+      else if (legend === "Instagram follows") { values = D.daily.follows.slice(wi); labelOf = (i) => md(wd[i]); }
       else if (legend === "This post's views") { values = D.cumulative[topSun.id]; labelOf = (i) => `${i + 1}d`; }
       else return bad(name, `unknown chart "${legend}"`);
       const pts = pl.getAttribute("points").trim().split(/\s+/).map((p) => p.split(",").map(Number));
@@ -149,7 +150,7 @@ function layout() {
   const browser = await chromium.launch();
   let failures = 0;
   for (const [html, fn] of [["index.html", inPage], ["business.html", inBusiness], ["index.html", layout], ["recap.html", layout], ["business.html", layout]]) {
-    const page = await browser.newPage({ viewport: { width: 1680, height: 1000 } });
+    const page = await browser.newPage({ viewport: { width: 1840, height: 1100 } });
     page.setDefaultTimeout(120000);
     await page.goto("file://" + path.join(ROOT, "src", html));
     await page.waitForSelector("body[data-ready='1']");

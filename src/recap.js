@@ -33,10 +33,10 @@
   const J = P.jul, G = P.aug, W = P.win;
   const split = (p) => `Sun care ${k1(p.split.views[0])} + other ranges ${k1(p.split.views[1])}`;
   const cards = [
-    card(0, "July 2026", "Account recap · 5–31 July", [
+    card(0, "July 2026", "Account recap · last 30 days (2–31 July)", [
       [k1(J.views), "Views", "E", `${split(J)} (25 Jul Reel)`],
       [J.follower_share.non_followers, "Views from non-followers", "E", `${J.follower_share.followers} from followers · three Reels-tab Reels: 75% non-followers`],
-      [k1(J.followers_end), "Followers on 31 July", "E", `<b class="up">+${fmt(J.net_followers)}</b> since 4 July · ${fmt(J.followers_end)} followers`],
+      [k1(J.followers_end), "Followers on 31 July", "E", `<b class="up">+${fmt(J.net_followers)}</b> since 1 July · ${fmt(J.followers_end)} followers`],
     ]),
     card(1, "August 2026", "Account recap · 1–31 August", [
       [k1(G.views), "Views", "E", `${split(G)} (15 Aug Reel)`],
@@ -49,7 +49,7 @@
       [k1(W.followers_end), "Followers on 1 September", "E", `<b class="up">+${fmt(W.net_followers)}</b> since 4 July (${W.growth_pct}) · ${fmt(W.followers_end)} followers`],
     ]),
   ];
-  const caps = ["July 2026 · 5–31 Jul", "August 2026 · 1–31 Aug", "Launch window · 5 Jul – 1 Sep"];
+  const caps = ["July 2026 · last 30 days, 2–31 Jul", "August 2026 · 1–31 Aug", "Launch window · 5 Jul – 1 Sep"];
 
   const pg = el(`<section class="page">
     <header class="page-head"><h1>Monthly recap <span>· @laboratoires_nihel · sun care launch</span></h1><span class="sim-badge">${BADGE}</span></header>

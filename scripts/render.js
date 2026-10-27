@@ -17,7 +17,7 @@ const DOCS = [
   const browser = await chromium.launch();
 
   const load = async (html, scale) => {
-    const page = await browser.newPage({ viewport: { width: 1680, height: 1000 }, deviceScaleFactor: scale });
+    const page = await browser.newPage({ viewport: { width: 1840, height: 1100 }, deviceScaleFactor: scale });
     page.setDefaultTimeout(120000); // a cold Chromium start can exceed the 30 s default
     await page.goto("file://" + path.join(ROOT, "src", html));
     await page.waitForSelector("body[data-ready='1']");
@@ -29,14 +29,16 @@ const DOCS = [
 
   for (const doc of DOCS) {
     const pdfPage = await load(doc.html, 1);
-    await pdfPage.pdf({ path: path.join(OUT, doc.pdf), width: "1680px", height: "1000px", printBackground: true, preferCSSPageSize: true });
+    await pdfPage.pdf({ path: path.join(OUT, doc.pdf), width: "1840px", height: "1100px", printBackground: true, preferCSSPageSize: true });
 
     const p2 = await load(doc.html, 2);
     const pages = await p2.$$(".page");
     for (let i = 0; i < pages.length; i++) {
       await pages[i].screenshot({ path: path.join(OUT, doc.pages, `${doc.prefix}-${String(i + 1).padStart(2, "0")}.png`) });
     }
-    const p3 = await load(doc.html, 3);
+    // single screens: 2x like a real iPhone 11 screenshot (828 x 1792), square corners
+    const p3 = await load(doc.html, 2);
+    await p3.evaluate(() => document.querySelectorAll(".phone, .bs").forEach((e) => { e.style.borderRadius = "0"; e.style.boxShadow = "none"; }));
     const phones = await p3.$$(".phone, .bs");
     for (const ph of phones) {
       await ph.screenshot({ path: path.join(OUT, "screens", `${await ph.getAttribute("data-name")}.png`) });

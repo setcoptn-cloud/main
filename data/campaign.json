@@ -37,6 +37,10 @@
   [
    "Reels-tab Reels (v3)",
    "Same rules as the 15 Aug Reel: reach = views ÷ 1.9, shares 10% and saves 5% of likes, profile visits 0.63% of reach, non-followers 75% of views; their non-follower reach is counted in full in accounts reached (rule 4 correction). Followers follow rule 5 (1 per 50 likes and comments)."
+  ],
+  [
+   "Last 30 days for July (v3)",
+   "The July screens use Instagram's “30 days” filter, i.e. 2–31 July. On 2–4 July no campaign publication exists: stories at July's daily rate (22,700 ÷ 33 day-units = 688 a day), story replies at July's rate per story view, followers +52.8 a day (rule 5 without likes), profile visits 0.25% of story views (rule 7), reach rule 4. Views of older posts on those days are not modelled."
   ]
  ],
  "observed": "Dates, formats, likes, visible comments and public Reel view counts of every publication; 4,486 views on 20 July; 46 likes on 13 Aug; 2,137 likes, 110 comments and 107K views on 15 Aug; 132 likes and 11 comments on 21 Aug; followers on 15 Apr (28.2K), 14 Oct (38.8K) and 23 Oct (40.4K). Three Reels shown only in the Reels tab: 5 Jul creator collab with rihab.labidi.5243 (20.7K views, 73 likes, 10 comments), 20 Jul sun pack collab with drest.tn (36.4K views, 91 likes, 4 comments), 25 Jul Fête de la République (43.3K views, 51 likes; no comment count shown, taken as 0).",
@@ -1013,8 +1017,27 @@
   ]
  ],
  "period_notes_v3": {
-  "jul": "Includes three Reels shown only in the Reels tab: the 5 Jul creator collab (rihab.labidi.5243), the 20 Jul sun pack collab with drest.tn (sun care) and the 25 Jul Fête de la République Reel (other range).",
+  "jul": "Last 30 days (2–31 July), as Instagram's “30 days” filter shows it on 1 August: the launch window starts on 5 July, so 2–4 July carry only stories and the baseline follower gain. Includes three Reels shown only in the Reels tab: the 5 Jul creator collab (rihab.labidi.5243), the 20 Jul sun pack collab with drest.tn (sun care) and the 25 Jul Fête de la République Reel (other range).",
   "aug": "Includes the 13 Aug (Fête de la femme), 15 Aug (black-and-white Reel, 107K views) and 21 Aug (body mist) posts. Views of the 15 Aug Reel are observed; their reach, shares and saves are estimated with the same rules as the sun care posts.",
   "win": "5 July – 1 September: July + August + 1 September exactly. Includes the three Reels-tab Reels and the four other-range publications."
+ },
+ "periods_v3": {
+  "jul": {
+   "start": "2026-07-02",
+   "range": "Jul 2 – Jul 31 2026",
+   "since": "Jul 1",
+   "picker": "30 days",
+   "pre_launch": [
+    "2026-07-02",
+    "2026-07-03",
+    "2026-07-04"
+   ]
+  },
+  "aug": {
+   "picker": "Custom"
+  },
+  "win": {
+   "picker": "Custom"
+  }
  }
 }

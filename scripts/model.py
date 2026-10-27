@@ -16,8 +16,10 @@ ROOT = Path(__file__).resolve().parent.parent
 D = json.loads((ROOT / "data" / "campaign.json").read_text(encoding="utf-8"))
 V2 = D["periods_v2"]
 
-START = dt.date(2026, 7, 5)
-DAYS = [START + dt.timedelta(n) for n in range(59)]  # 5 Jul - 1 Sep
+START = dt.date(2026, 7, 2)
+DAYS = [START + dt.timedelta(n) for n in range(62)]  # 2 Jul - 1 Sep (launch window from 5 Jul)
+V3 = D["periods_v3"]
+PRE = [dt.date.fromisoformat(x) for x in V3["jul"]["pre_launch"]]  # 2-4 Jul, before the launch
 DECAY = [0.4 * 0.6 ** k for k in range(30)]
 FORMATS = {"Reel", "Post", "Carousel"}
 METRICS4 = ("likes", "comments", "shares", "saves")
@@ -95,6 +97,13 @@ heavy = set(st["jul"]["heavy_days"])
 stories = dict(zip(JUL, alloc(st["jul"]["views"], [st["jul"]["heavy_weight"] if d.isoformat() in heavy else 1 for d in JUL])))
 stories.update(zip(AUG, alloc(st["aug"]["views"], [1] * len(AUG))))
 stories[SEP1] = st["sep1"]["views"]
+jul_units = sum(st["jul"]["heavy_weight"] if d.isoformat() in heavy else 1 for d in JUL)
+PRE_RATE = round(st["jul"]["views"] / jul_units)
+for d in PRE:
+    stories[d] = PRE_RATE
+PRE_STORIES = PRE_RATE * len(PRE)
+PRE_REPLIES = round(st["jul"]["replies"] / st["jul"]["views"] * PRE_STORIES)
+PRE_VISITS = round(0.0025 * PRE_STORIES)
 
 is_reel = lambda p: p["format"] == "Reel"
 is_post = lambda p: p["format"] in ("Post", "Carousel")
@@ -104,10 +113,13 @@ is_other = lambda p: p["range"] == "other"
 def followers_series(posts):
     """Rule 5: +52.8 a day + 1 per 50 likes and comments received that day."""
     lk, cm = daily(posts, "likes"), daily(posts, "comments")
-    acc = float(D["followers_start"]["value"])
-    prev = D["followers_start"]["value"]
+    start = D["followers_start"]["value"]
+    acc = start - 52.8 * len(PRE)
+    prev = round(acc)
     net, fol = {}, {}
     for d in DAYS:
+        if d == PRE[-1] + dt.timedelta(1):
+            acc, prev = float(start), start  # 4 July value of the source
         acc += 52.8 + (lk[d] + cm[d]) / 50
         cur = round(acc)
         net[d], fol[d], prev = cur - prev, cur, cur
@@ -118,18 +130,22 @@ def pct(s):
     return float(s.rstrip("%")) / 100
 
 
-def period(key, posts, added):
-    """All figures of one period. `added` = publications added on top of v2."""
+def period(key, posts, added, pre=False):
+    """All figures of one period. `added` = publications added on top of v2;
+    `pre` = also count 2-4 July (July shown as Instagram's last 30 days)."""
     v2, ds = V2[key], in_period(key)
+    if pre:
+        ds = PRE + ds
+    ps, pr, pv = (PRE_STORIES, PRE_REPLIES, PRE_VISITS) if pre else (0, 0, 0)
     k = 0.55 * (0.85 if key == "win" else 1)
     net, fol, lk, cm = followers_series(posts)
 
     vt = {"posts": total(posts, "views", ds, is_post), "reels": total(posts, "views", ds, is_reel),
-          "stories": v2["views_by_type"]["stories"], "live": 0}
+          "stories": v2["views_by_type"]["stories"] + ps, "live": 0}
     views = sum(vt.values())
     other_views = total(posts, "views", ds, is_other)
     det = {m: total(posts, m, ds) for m in METRICS4}
-    det["story_replies"] = v2["interactions_detail"]["story_replies"]
+    det["story_replies"] = v2["interactions_detail"]["story_replies"] + pr
     inter = sum(det.values())
     i4 = lambda pred: sum(total(posts, m, ds, pred) for m in METRICS4)
     ibt = {"posts": i4(is_post), "reels": i4(is_reel), "stories": det["story_replies"], "live": 0}
@@ -139,19 +155,20 @@ def period(key, posts, added):
     # added Reels counts in full; their follower reach goes through the overlap factor.
     o2 = next(p for p in posts if p["id"] == "O2")
     add_reach = lambda p: total([p], "reach", ds) * (0.75 + 0.25 * k)
-    viewers = round(v2["viewers"] + (1 - k) * 0.75 * total([o2], "reach", ds) + sum(add_reach(p) for p in added))
-    sun_reached = round(v2["split"]["reached"][0] + sum(add_reach(p) for p in added if not is_other(p)))
+    pre_reach = k * ps / 1.6  # stories reach = views / 1.6, through the overlap factor
+    viewers = round(v2["viewers"] + pre_reach + (1 - k) * 0.75 * total([o2], "reach", ds) + sum(add_reach(p) for p in added))
+    sun_reached = round(v2["split"]["reached"][0] + pre_reach + sum(add_reach(p) for p in added if not is_other(p)))
 
     # views from non-followers: added Reels are 75% non-followers, like the 15 Aug Reel
     added_views = sum(total([p], "views", ds) for p in added)
-    nf = round((pct(v2["follower_share"]["non_followers"]) * v2["views"] + 0.75 * added_views) / views * 1000) / 10
     fs = dict(v2["follower_split_by_type"])
+    nf = round((pct(v2["follower_share"]["non_followers"]) * v2["views"] + (1 - fs["stories"]) * ps + 0.75 * added_views) / views * 1000) / 10
     if vt["reels"]:
         fs["reels"] = round((fs["reels"] * v2["views_by_type"]["reels"] + 0.25 * added_views) / vt["reels"], 4)
 
     # rule 7: profile visits; taps are a share of visits
     add_vis = lambda pred: sum(total([p], "visits", ds) for p in added if pred(p))
-    vis = [v2["split"]["visits"][0] + add_vis(lambda p: not is_other(p)), v2["split"]["visits"][1] + add_vis(is_other)]
+    vis = [v2["split"]["visits"][0] + pv + add_vis(lambda p: not is_other(p)), v2["split"]["visits"][1] + add_vis(is_other)]
     visits = vis[0] + vis[1]
 
     n = sum(net[d] for d in ds)
@@ -159,9 +176,11 @@ def period(key, posts, added):
     best = max(net[d] for d in ds)
     first = next(d for d in ds if net[d] == best)
     follows = round(n / 0.84)
+    o = V3.get(key, {}) if pre or added else {}
     return {
-        "label": v2["label"], "short": v2["short"], "start": v2["start"], "end": v2["end"], "range": v2["range"],
-        "since": v2["since"], "cities": v2["cities"], "note": D["period_notes_v3"][key] if added else v2["note"],
+        "label": v2["label"], "short": v2["short"], "start": ds[0].isoformat(), "end": v2["end"],
+        "range": o.get("range", v2["range"]) if pre else v2["range"], "since": o.get("since", v2["since"]) if pre else v2["since"],
+        "picker": o.get("picker", "Custom"), "cities": v2["cities"], "note": D["period_notes_v3"][key] if added else v2["note"],
         "views": views, "views_by_type": vt,
         "follower_share": {"followers": f"{100 - nf:.1f}%", "non_followers": f"{nf:.1f}%"},
         "follower_split_by_type": fs,
@@ -184,38 +203,53 @@ for key, v2 in V2.items():
     for field in ("views", "interactions", "visits"):
         check(f"v2 {key} split {field}", got["split"][field], v2["split"][field])
     check(f"v2 {key} sun reached", got["split"]["reached"][0], v2["split"]["reached"][0])
+WIN = in_period("win")
 net_b, fol_b, lk_b, cm_b = followers_series(BASE)
 for i, (label, lc, gain, perday, end) in enumerate(D["weekly_followers_v2"]):
-    ds = DAYS[7 * i: 7 * i + 7] if i < 7 else DAYS[49:]
+    ds = WIN[7 * i: 7 * i + 7] if i < 7 else WIN[49:]
     check(f"v2 week {label}", (sum(lk_b[d] + cm_b[d] for d in ds), sum(net_b[d] for d in ds), f"{sum(net_b[d] for d in ds) / len(ds):.1f}", fol_b[ds[-1]]),
           (lc, gain, perday, end))
 
-# ---------- 2. v3: all 30 publications ----------
-P3 = {key: period(key, ALL, NEW) for key in V2}
+# ---------- 2. v3: all 30 publications; July = Instagram's last 30 days (2-31 Jul) ----------
+P3 = {key: period(key, ALL, NEW, pre=(key == "jul")) for key in V2}
+JUL_LAUNCH = period("jul", ALL, NEW)  # 5-31 Jul, the July part of the launch window
 net, fol, lk, cm = followers_series(ALL)
+check("followers on 4 July", fol[PRE[-1]], D["followers_start"]["value"])
 weekly = []
 for i, (label, *_rest) in enumerate(D["weekly_followers_v2"]):
-    ds = DAYS[7 * i: 7 * i + 7] if i < 7 else DAYS[49:]
+    ds = WIN[7 * i: 7 * i + 7] if i < 7 else WIN[49:]
     g = sum(net[d] for d in ds)
     weekly.append([label, sum(lk[d] + cm[d] for d in ds), g, f"{g / len(ds):.1f}", fol[ds[-1]]])
 
 views_d = daily(ALL, "views")
 views_d = {d: views_d[d] + stories[d] for d in DAYS}
 for key, p in P3.items():
-    ds = in_period(key)
+    ds = [d for d in DAYS if p["start"] <= d.isoformat() <= p["end"]]
     check(f"{key} daily views add up", sum(views_d[d] for d in ds), p["views"])
     check(f"{key} reach is the largest of all", p["viewers"] >= max(total([x], "reach", ds) for x in ALL), True)
+
+# Columns of the cover table: 2-4 Jul (before the launch) and 1 Sep, so that
+# window = July (30 days) - 2-4 Jul + August + 1 Sep for every additive figure.
+pre_net = sum(net[d] for d in PRE)
+P3["pre"] = {"views": PRE_STORIES, "views_by_type": {"posts": 0, "reels": 0, "stories": PRE_STORIES, "live": 0},
+             "interactions_detail": {"likes": 0, "comments": 0, "shares": 0, "saves": 0, "story_replies": PRE_REPLIES},
+             "interactions": PRE_REPLIES, "net_followers": pre_net, "follows": round(pre_net / 0.84),
+             "profile": {"visits": PRE_VISITS, "bio_taps": 0, "address_taps": 0}, "followers_end": fol[PRE[-1]]}
+P3["pre"]["unfollows"] = P3["pre"]["follows"] - pre_net
+J, G, Wn, R = P3["jul"], P3["aug"], P3["win"], P3["pre"]
 for f in ("views", "interactions", "net_followers"):
-    check(f"window {f} = Jul + Aug + 1 Sep", P3["win"][f], P3["jul"][f] + P3["aug"][f] + (
-        views_d[SEP1] if f == "views" else net[SEP1] if f == "net_followers" else
-        sum(total(ALL, m, [SEP1]) for m in METRICS4) + st["sep1"]["replies"]))
+    check(f"July (30 days) - 2-4 Jul = 5-31 Jul: {f}", J[f] - R[f], JUL_LAUNCH[f])
+check("July (30 days) - 2-4 Jul = 5-31 Jul: visits", J["profile"]["visits"] - R["profile"]["visits"], JUL_LAUNCH["profile"]["visits"])
+sep = lambda f: Wn[f] - (J[f] - R[f]) - G[f]
+check("1 Sep views", sep("views"), views_d[SEP1])
+check("1 Sep net followers", sep("net_followers"), net[SEP1])
+check("1 Sep interactions", sep("interactions"), sum(total(ALL, m, [SEP1]) for m in METRICS4) + st["sep1"]["replies"])
+for f in ("bio_taps", "address_taps"):
+    check(f"1 Sep {f} not negative", Wn["profile"][f] - (J["profile"][f] - R["profile"][f]) - G["profile"][f] >= 0, True)
 
 # Business Suite: gross follows per day, split in proportion to the daily net gain
-follows = {}
-for key in ("jul", "aug"):
-    ds = in_period(key)
-    follows.update(zip(ds, alloc(P3[key]["follows"], [net[d] for d in ds])))
-follows[SEP1] = P3["win"]["follows"] - P3["jul"]["follows"] - P3["aug"]["follows"]
+follows = dict(zip(PRE, alloc(R["follows"], [net[d] for d in PRE])))
+follows.update(zip(WIN, alloc(Wn["follows"], [net[d] for d in WIN])))
 
 win = in_period("win")
 formats = {}
@@ -255,7 +289,7 @@ out = {
 js = "// Generated by scripts/model.py from data/campaign.json. Do not edit by hand.\nwindow.DATA = " + json.dumps(out, ensure_ascii=False) + ";\n"
 (ROOT / "src" / "data.js").write_text(js, encoding="utf-8")
 print("All checks passed (v2 reproduced from 27 publications; v3 computed from 30). Wrote src/data.js")
-for key, p in P3.items():
-    v2 = V2[key]
+for key, v2 in V2.items():
+    p = P3[key]
     print(f"  {key}: views {v2['views']:,} -> {p['views']:,} | reached {p['viewers']:,} | interactions {v2['interactions']:,} -> {p['interactions']:,}"
           f" | net followers +{v2['net_followers']:,} -> +{p['net_followers']:,} | end {p['followers_end']:,} | non-followers {v2['follower_share']['non_followers']} -> {p['follower_share']['non_followers']}")
