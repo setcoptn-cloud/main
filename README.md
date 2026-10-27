@@ -8,7 +8,7 @@ and every screen says so. This is not an Instagram or Meta export.
 
 | File | Content |
 | --- | --- |
-| `Nihel_Sun_Insights_v3_mockup.pdf` | 8 vector pages, 1680 × 1000 px: cover and reconciliation, then Overview/Content and Audience for July, August and the whole window, then method and publications table |
+| `Nihel_Sun_Insights_v3_mockup.pdf` | 8 vector pages, 1840 × 1100 px: cover and reconciliation, then Overview/Content and Audience for July, August and the whole window, then method and publications table |
 | `pages/page-NN.png` | Each page at 2× |
 | `screens/<period>-<tab>-<n>.png` | Each phone screen alone at 828 × 1792 (2× of 414 × 896, the size of a real iPhone 11 screenshot), square corners |
 | `Nihel_Meta_Business_Suite_mockup.pdf` | 8 pages: Meta Business Suite desktop Insights (Instagram, launch window) — content overview, top content formats, results, all content, post detail, audience; `pages/business-NN.png` and `screens/bs-*.png` |
