@@ -243,7 +243,23 @@
     });
     const title = kind === "overview" ? "Overview and content" : "Audience";
     const note = kind === "audience" ? " · audience data estimated" : key === "jul" ? " · the 15 Aug Reel (107K) is counted in August" : "";
-    return page(`${p.label} · ${title}`, p.range + note, wrap);
+    if (kind !== "overview") return page(`${p.label} · ${title}`, p.range + note, wrap);
+    const holder = el(`<div></div>`);
+    wrap.style.bottom = "64px";
+    holder.append(wrap, el(`<div class="chart-note">${chartNote(key)}</div>`));
+    return page(`${p.label} · ${title}`, p.range + note, holder);
+  }
+
+  // Why the chart's top value is lower than the biggest post: one point = one day.
+  function chartNote(key) {
+    const p = PERIODS[key], { dates, values } = slice(key, "views");
+    const i = values.indexOf(Math.max(...values)), day = dates[i];
+    const lead = C.posts.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
+    const [, m, d] = day.split("-").map(Number);
+    const dayTxt = `${d} ${MON[m - 1]}`;
+    return `<b>Reading the chart:</b> one point = the views of one day (all content, stories included); the ${values.length} days add up to ${fmt(p.views)}. ` +
+      `Busiest day ${dayTxt}: ${fmt(values[i])} views` +
+      (lead ? `, of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of “${esc(lead.title)}”. Its ${fmt(lead.views)} views spread over 30 days (40% on day 1), so no single day reaches a post's total, as in Instagram.` : ".");
   }
 
   function peakLabel(key) {

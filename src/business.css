@@ -3,7 +3,7 @@
 .bs-wrap { position: absolute; top: 64px; bottom: 32px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .bs-scale { width: 1354px; height: 846px; }
 .bs-scale > .bs { transform: scale(0.94); transform-origin: 0 0; }
-.bs-cap { font-size: 12.5px; color: var(--page-muted); }
+.bs-cap { font-size: 12.5px; color: var(--page-muted); text-align: center; line-height: 1.5; max-width: 1354px; }
 .bs-cap b { color: var(--page-ink); font-weight: 600; }
 
 .bs {

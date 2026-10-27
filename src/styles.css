@@ -231,3 +231,5 @@ ol.rules li b { color: var(--page-ink); }
 
 table.t.tight td { padding-top: 3.5px; padding-bottom: 3.5px; }
 table.t.tight tr.sub td { padding-top: 1px; padding-bottom: 1px; }
+.chart-note { position: absolute; left: 40px; right: 40px; bottom: 40px; font-size: 12.5px; line-height: 1.45; color: var(--page-muted); text-align: center; }
+.chart-note b { color: var(--page-ink); }

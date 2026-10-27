@@ -305,6 +305,14 @@
       s.querySelector(".bs-scroll").style.transform = `translateY(${-(t.offsetTop - Number(s.dataset.at))}px)`;
     });
   }
+  // Why the chart's top is lower than the biggest post: one point = one day.
+  function chartNote() {
+    const v = DAILY.views, i = v.indexOf(Math.max(...v)), day = DAILY.days[i];
+    const lead = C.posts.filter((x) => x.date === day).sort((a, b) => b.views - a.views)[0];
+    return `<br><b>Reading the chart:</b> one point = the views of one day; the ${v.length} days add up to ${fmt(W.views)}. Busiest day ${md(day)}: ${fmt(v[i])}, ` +
+      `of which ${fmt(DATA.cumulative[lead.id][0])} from the first day of “${esc(lead.title)}” (${fmt(lead.views)} views over 30 days, 40% on day 1).`;
+  }
+
   function shot(name, title, caption, scr) {
     scr.dataset.name = name;
     const wrap = el(`<div class="bs-wrap"><div class="bs-scale"></div><div class="bs-cap">${caption}</div></div>`);
@@ -353,9 +361,9 @@
   }
 
   intro();
-  shot("bs-content-overview", "Content overview", "<b>2</b> · Content › Overview · top of page", screen("c-overview", contentOverview()));
+  shot("bs-content-overview", "Content overview", "<b>2</b> · Content › Overview · top of page" + chartNote(), screen("c-overview", contentOverview()));
   shot("bs-content-overview-2", "Content overview", "<b>3</b> · Content › Overview · scrolled to top content and formats", screen("c-overview", contentOverview(), ["co-top", 0]));
-  shot("bs-results", "Results", "<b>4</b> · Results · top of page", screen("results", results()));
+  shot("bs-results", "Results", "<b>4</b> · Results · top of page" + chartNote(), screen("results", results()));
   shot("bs-results-2", "Results", "<b>5</b> · Results · scrolled", screen("results", results(), ["res-row2", 0]));
   shot("bs-all-content", "Content", "<b>6</b> · Content › Content · 12 of 27 publications, sorted by views", screen("c-content", allContent()));
   shot("bs-post-detail", "Post detail", `<b>7</b> · Post detail · ${esc(TOP_SUN.title)} · views over its first 30 days`, screen("c-content", postDetail(TOP_SUN.id)));

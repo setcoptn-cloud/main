@@ -136,7 +136,7 @@ function layout() {
   const out = [];
   document.querySelectorAll(".page").forEach((pg, n) => {
     const foot = pg.querySelector(".page-foot").getBoundingClientRect().top;
-    pg.querySelectorAll(".panel, .recap-note, .sheet > div, .bs-cap, figcaption").forEach((el) => {
+    pg.querySelectorAll(".panel, .recap-note, .chart-note, .sheet > div, .bs-cap, figcaption").forEach((el) => {
       const r = el.getBoundingClientRect();
       if (el.scrollHeight > el.clientHeight + 1 && getComputedStyle(el).overflow !== "visible") out.push(`page ${n + 1}: ${el.className || el.tagName} clips its content`);
       if (r.bottom > foot + 0.5) out.push(`page ${n + 1}: ${el.className || el.tagName} runs under the footer`);
